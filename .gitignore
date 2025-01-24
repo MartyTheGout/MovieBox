@@ -94,5 +94,8 @@ iOSInjectionProject/
 # Credentials
 APIKeys.swift
 
+# Source of Data
+Datasource.swift
+
 # End of https://www.toptal.com/developers/gitignore/api/swift
 
