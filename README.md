@@ -6,6 +6,8 @@ look around movies, and mark it liked.
 # Setting
 
 Platform : iOS
+
 minimum version supported : iOS 16.0.0 
+
 orientation supported : portrait 
 
