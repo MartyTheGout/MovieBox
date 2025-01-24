@@ -12,7 +12,8 @@
 .DS_Store
 
 ## User settings
-xcuserdata/
+MovieBox.xcodeproj/xcuserdata/
+MovieBox.xcodeproj/project.xcworkspace/xcshareddata/
 
 ## compatibility with Xcode 8 and earlier (ignoring not required starting Xcode 9)
 *.xcscmblueprint
