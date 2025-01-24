@@ -1,0 +1,40 @@
+//
+//  ApplicationUserData.swift
+//  MovieBox
+//
+//  Created by marty.academy on 1/24/25.
+//
+
+import UIKit
+
+@propertyWrapper
+struct UserDefault<T> {
+    var key: String
+    var defaultValue: T
+    
+    var wrappedValue: T {
+        get {
+            UserDefaults.standard.object(forKey: self.key) as? T ?? defaultValue
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: self.key)
+        }
+    }
+}
+
+enum ApplicationUserData {
+    @UserDefault(key: "FIRST_LAUCH_STATE", defaultValue: true) // 독립적으로 보이지만, 4가지의 경우의 수가 존재하지 않는다. ** 
+    static var firstLauchState: Bool
+    
+    @UserDefault(key: "WITHDRAWAL_STATE", defaultValue: false)
+    static var withdrawalState: Bool
+    
+    static func changeLauchState() {
+        firstLauchState.toggle()
+    }
+    
+    static func changeWithdrawlState() {
+        withdrawalState.toggle()
+    }
+}
+
