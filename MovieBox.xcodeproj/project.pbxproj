@@ -6,8 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		408A3E052D4363C500C2FB8A /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 408A3E042D4363C500C2FB8A /* .gitignore */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		408A3DEC2D43603200C2FB8A /* MovieBox.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MovieBox.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		408A3E042D4363C500C2FB8A /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -45,6 +50,7 @@
 		408A3DE32D43603200C2FB8A = {
 			isa = PBXGroup;
 			children = (
+				408A3E042D4363C500C2FB8A /* .gitignore */,
 				408A3DEE2D43603200C2FB8A /* MovieBox */,
 				408A3DED2D43603200C2FB8A /* Products */,
 			);
@@ -122,6 +128,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				408A3E052D4363C500C2FB8A /* .gitignore in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
