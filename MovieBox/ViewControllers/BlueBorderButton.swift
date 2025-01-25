@@ -21,7 +21,8 @@ class BlueBorderButton: UIButton {
     }
     
     private func configureButtonAttribute() {
-        let attributedString = NSAttributedString(string: "시작하기", attributes: [
+        
+        let attributedString = NSAttributedString(string: title, attributes: [
             .font : UIFont.systemFont(ofSize: 17, weight: .regular),
             .foregroundColor : AppColor.tintBlue.inUIColorFormat
         ])

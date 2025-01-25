@@ -23,8 +23,7 @@ class ProfileViewController: BaseViewController {
         super.viewDidLoad()
         textFieldView.textField.delegate = self
     }
-    
-    
+        
     override func setInitialValue() {
         print(#function, "ProfileViewController")
         navigationName = "프로필 설정"
@@ -66,4 +65,32 @@ class ProfileViewController: BaseViewController {
     }
 }
 
-extension ProfileViewController: UITextFieldDelegate {}
+extension ProfileViewController: UITextFieldDelegate {
+    
+    override func didChangeValue(forKey key: String) {
+        print(#function)
+        for element in ["@", "#", "$", "%"] {
+            if key.contains(element) {
+                validationLabel.text = "닉네임는 @, #, $, %는 포함할 수 없어요"
+                return
+            }
+        }
+        
+        if key.contains(/\d/) {
+            validationLabel.text = "닉네임에 숫자는 포함할 수 없어요."
+            return
+        }
+        
+        if key.count >= 2 && key.count < 10 {
+            validationLabel.text = "사용할 수 있는 닉네임이에요."
+            return
+        } else {
+            validationLabel.text = "닉2글자 이상 10글자 미만으로 설정해주세요."
+            return
+        }
+    }
+    
+    private func showValidation(message: String) {
+        validationLabel.text = message
+    }
+}
