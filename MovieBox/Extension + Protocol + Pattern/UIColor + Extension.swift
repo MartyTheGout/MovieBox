@@ -21,7 +21,7 @@ import UIKit
  */
 extension UIColor {
     convenience init(hex: String) {
-        var colorInString:String = hex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
+        let colorInString: String = hex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
         
         var rgbColorValue: UInt64 = 0
         Scanner(string: colorInString).scanHexInt64(&rgbColorValue)

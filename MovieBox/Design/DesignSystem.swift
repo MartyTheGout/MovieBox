@@ -7,13 +7,12 @@
 
 import UIKit
 
-
 enum AppColor: String {
     case tintBlue = "0099D6"
     case mainBackground = "000000"
     case subBackground = "8e8e8e"
-    case mainInfoDeliver = "fffff"
-    case subInfoDeliver = "e1e1e1"
+    case mainInfoDeliver = "FFFFFF"
+    case subInfoDeliver = "E1E1E1"
     
     var inUIColorFormat: UIColor {
         UIColor(hex: self.rawValue)
@@ -21,7 +20,7 @@ enum AppColor: String {
 }
 
 // border Width
-enum AppLineDesign: Int {
+enum AppLineDesign: CGFloat {
     case selected = 3
     case unselected = 1
 }
@@ -35,4 +34,8 @@ enum AppSFSymbol: String {
     case magnifyingglass = "magnifyingglass"
     case star = "star.fill"
     case film = "film.fill"
+    
+    var image : UIImage {
+        UIImage(systemName: self.rawValue)!
+    }
 }

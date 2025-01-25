@@ -29,6 +29,12 @@ enum ApplicationUserData {
     @UserDefault(key: "WITHDRAWAL_STATE", defaultValue: false)
     static var withdrawalState: Bool
     
+    @UserDefault(key: "PROFILE_NUMBER", defaultValue: 100)
+    static var profileNumber: Int
+    
+    @UserDefault(key: "NICKNAME", defaultValue: "즐거운술상")
+    static var nickname: String
+    
     static func changeLauchState() {
         firstLauchState.toggle()
     }
