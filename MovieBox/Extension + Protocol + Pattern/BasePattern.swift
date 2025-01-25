@@ -13,13 +13,13 @@ protocol DrawingEssentials {
 }
 
 class BaseView: UIView, DrawingEssentials {
-        override init(frame: CGRect) {
-            super.init(frame: .zero)
-    
-            configureViewHierarchy()
-            configureViewLayout()
-            configureViewDetails()
-        }
+    override init(frame: CGRect) {
+        super.init(frame: .zero)
+        
+        configureViewHierarchy()
+        configureViewLayout()
+        configureViewDetails()
+    }
     
     func configureViewHierarchy() {}
     func configureViewLayout() {}
@@ -50,11 +50,20 @@ class BaseViewController: UIViewController, DrawingEssentials {
     
     // As a default action, set navigationTitle and make back-button only chevron
     func configureNavigationBar() {
-        if let title = navigationName {
-            navigationItem.title = navigationName
-        }
         
-        navigationItem.backBarButtonItem?.title = ""
+        //TODO: setting text is on the side of item, but setting color is on the side of navigationbar
+        navigationController?.navigationBar.titleTextAttributes = [
+            .foregroundColor : AppColor.mainInfoDeliver.inUIColorFormat
+        ]
+        
+        if let title = navigationName {
+            navigationItem.title = title
+        }
+
+        //TODO: setting backButtonTitle didn't work. so did have to change the button it self.
+        //Why the button cannot have the changed string. 
+        navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
+        
     }
     func configureViewHierarchy() {}
     func configureViewLayout() {}

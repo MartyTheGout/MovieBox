@@ -10,19 +10,19 @@ import UIKit
 class SelectedProfileView: BaseView {
     
     var userData: Int = ApplicationUserData.profileNumber
+    var isClickable: Bool = true
     
-    let mainImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFill
-        imageView.clipsToBounds = true
+    lazy var button: UIButton = {
+        let button = UIButton()
+        button.layer.borderWidth = AppLineDesign.selected.rawValue
+        button.layer.borderColor = AppColor.tintBlue.inUIColorFormat.cgColor
+        button.layer.masksToBounds = true
+        button.isEnabled = self.isClickable
         
-        imageView.layer.borderColor = AppColor.tintBlue.inUIColorFormat.cgColor
-        imageView.layer.borderWidth = AppLineDesign.selected.rawValue
-        
-        return imageView
+        return button
     }()
     
-        let subImageView: UIImageView = {
+    let subImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = AppSFSymbol.camera.image
         imageView.backgroundColor = AppColor.tintBlue.inUIColorFormat
@@ -34,32 +34,31 @@ class SelectedProfileView: BaseView {
     }()
     
     override func configureViewHierarchy() {
-        [mainImageView,subImageView].forEach { addSubview($0) }
+        [button,subImageView].forEach { addSubview($0) }
     }
     
     override func configureViewLayout() {
-        mainImageView.snp.makeConstraints {
-            $0.leading.top.equalToSuperview()
-            $0.size.equalTo(100)
+        button.snp.makeConstraints {
+            $0.top.leading.equalToSuperview().offset(10)
+            $0.trailing.bottom.equalToSuperview().offset(-10)
+            $0.height.equalTo(button.snp.width)
         }
         
         subImageView.snp.makeConstraints {
-            $0.size.equalTo(30)
-            $0.bottom.trailing.equalTo(mainImageView)
-            $0.bottom.trailing.equalToSuperview()
+            $0.size.equalTo(button.snp.size).dividedBy(3)
+            $0.bottom.trailing.equalTo(button)
         }
     }
     
     override func configureViewDetails() {
         let profileNumber = userData == 100 ? Int.random(in: 1...11) : userData
-        mainImageView.image = UIImage(named: "profile_\(profileNumber)")
+        button.setImage(UIImage(named: "profile_\(profileNumber)"), for: .normal)
+        button.imageView?.contentMode = .scaleAspectFill
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        
-        mainImageView.layer.cornerRadius = mainImageView.frame.height / 2
+        button.layer.cornerRadius = button.frame.height / 2
         subImageView.layer.cornerRadius = subImageView.frame.height / 2
-        
     }
 }

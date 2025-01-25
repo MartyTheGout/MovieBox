@@ -14,8 +14,9 @@ class NameTextFieldView: BaseView {
     let textField: UITextField = {
         let textField = UITextField()
         
-        textField.backgroundColor = .clear
+        textField.backgroundColor = AppColor.mainBackground.inUIColorFormat
         textField.textColor = AppColor.mainInfoDeliver.inUIColorFormat
+        textField.tintColor = AppColor.mainInfoDeliver.inUIColorFormat
         
         return textField
     }()
@@ -34,14 +35,14 @@ class NameTextFieldView: BaseView {
     override func configureViewLayout() {
         textField.snp.makeConstraints {
             $0.top.equalToSuperview()
-            $0.horizontalEdges.equalToSuperview().inset(10)
+            $0.horizontalEdges.equalToSuperview().inset(25)
         }
         
         underLine.snp.makeConstraints {
             $0.top.equalTo(textField.snp.bottom).offset(5)
             $0.horizontalEdges.equalToSuperview().inset(10)
             $0.height.equalTo(1)
-            $0.bottom.equalToSuperview()
+            $0.bottom.trailing.equalToSuperview()
         }
     }
     

@@ -37,18 +37,7 @@ class OnboardViewController: BaseViewController {
         return label
     }()
     
-    let button : UIButton = {
-        let button = UIButton()
-        let attributedString = NSAttributedString(string: "시작하기", attributes: [
-            .font : UIFont.systemFont(ofSize: 17, weight: .regular),
-            .foregroundColor : AppColor.tintBlue.inUIColorFormat
-        ])
-        button.setAttributedTitle(attributedString, for: .normal)
-        button.layer.borderColor = AppColor.tintBlue.inUIColorFormat.cgColor
-        button.layer.borderWidth = AppLineDesign.selected.rawValue
-
-        return button
-    }()
+    let button : UIButton = BlueBorderButton(title: "시작하기")
     
     override func viewDidLoad() {
         super.viewDidLoad()
