@@ -32,8 +32,11 @@ enum ApplicationUserData {
     @UserDefault(key: "PROFILE_NUMBER", defaultValue: 100)
     static var profileNumber: Int
     
-    @UserDefault(key: "NICKNAME", defaultValue: "즐거운술상")
+    @UserDefault(key: "NICKNAME", defaultValue: "")
     static var nickname: String
+    
+    @UserDefault(key: "REGISTRATION_DATE", defaultValue: Date())
+    static var registrationDate: Date
     
     static func changeLauchState() {
         firstLauchState.toggle()
