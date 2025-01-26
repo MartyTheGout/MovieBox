@@ -10,7 +10,8 @@ import UIKit
 enum AppColor: String {
     case tintBlue = "0099D6"
     case mainBackground = "000000"
-    case subBackground = "8e8e8e"
+    case subBackground = "8E8E8E"
+    case cardBackground = "2F2F2F   "
     case mainInfoDeliver = "FFFFFF"
     case subInfoDeliver = "E1E1E1"
     
@@ -33,7 +34,10 @@ enum AppSFSymbol: String {
     case calendar = "calendar"
     case magnifyingglass = "magnifyingglass"
     case star = "star.fill"
-    case film = "film.fill"
+    case film = "film.stack"
+    case popcorn = "popcorn"
+    case person = "person.circle"
+    case chevronRight = "chevron.right"
     
     var image : UIImage {
         UIImage(systemName: self.rawValue)!

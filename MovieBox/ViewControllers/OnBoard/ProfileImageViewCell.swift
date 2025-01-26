@@ -18,8 +18,7 @@ class ProfileImageViewCell: BaseCollectionViewCell {
     var isChosen = false {
         didSet {
             if isChosen {
-                button.layer.borderWidth = AppLineDesign.selected.rawValue
-                button.layer.borderColor = AppColor.tintBlue.inUIColorFormat.cgColor
+                getBlueBoldBorder(view: button)
                 button.alpha = 1
             } else {
                 button.layer.borderWidth = AppLineDesign.unselected.rawValue
@@ -31,8 +30,7 @@ class ProfileImageViewCell: BaseCollectionViewCell {
     
     lazy var button: UIButton = {
         let button = UIButton()
-        button.layer.borderWidth = AppLineDesign.selected.rawValue
-        button.layer.borderColor = AppColor.tintBlue.inUIColorFormat.cgColor
+        getBlueBoldBorder(view: button)
         button.layer.masksToBounds = true
         return button
     }()

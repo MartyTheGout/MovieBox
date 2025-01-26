@@ -43,7 +43,7 @@ class BlueBorderButton: UIButton {
         
         self.setAttributedTitle(attributedStringForDisabled, for: .disabled)
         
-        self.layer.borderColor = AppColor.tintBlue.inUIColorFormat.cgColor
-        self.layer.borderWidth = AppLineDesign.selected.rawValue
+        
+        getBlueBoldBorder(view: self)
     }
 }

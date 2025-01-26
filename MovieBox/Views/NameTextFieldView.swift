@@ -45,12 +45,4 @@ class NameTextFieldView: BaseView {
             $0.bottom.trailing.equalToSuperview()
         }
     }
-    
-    override func configureViewDetails() {
-        
-    }
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-    }
 }

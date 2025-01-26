@@ -19,8 +19,7 @@ class SelectedProfileView: BaseView {
     
     lazy var button: UIButton = {
         let button = UIButton()
-        button.layer.borderWidth = AppLineDesign.selected.rawValue
-        button.layer.borderColor = AppColor.tintBlue.inUIColorFormat.cgColor
+        getBlueBoldBorder(view: button)
         button.layer.masksToBounds = true
         button.isEnabled = self.isClickable
         
