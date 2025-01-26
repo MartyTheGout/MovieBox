@@ -14,7 +14,15 @@ struct UserDefault<T> {
     
     var wrappedValue: T {
         get {
+            
             UserDefaults.standard.object(forKey: self.key) as? T ?? defaultValue
+            
+            //TODO: not sure the Int array cant be set/get with the existing function
+//            if T.self is Array<Any>.Type {
+//                UserDefaults.standard.array(forKey: self.key) as? T ?? defaultValue
+//            } else {
+//                UserDefaults.standard.object(forKey: self.key) as? T ?? defaultValue
+//            }
         }
         set {
             UserDefaults.standard.set(newValue, forKey: self.key)
@@ -37,6 +45,12 @@ enum ApplicationUserData {
     
     @UserDefault(key: "REGISTRATION_DATE", defaultValue: Date())
     static var registrationDate: Date
+    
+    @UserDefault(key: "LIKED_ID_ARRAY", defaultValue: [])
+    static var likedIdArray: [String]
+    
+    @UserDefault(key: "RECENTLY_USED_KEYWORD", defaultValue: [])
+    static var recentlyUsedKeyword: [String]
     
     static func changeLauchState() {
         firstLauchState.toggle()
