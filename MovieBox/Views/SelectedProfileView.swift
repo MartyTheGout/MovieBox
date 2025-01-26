@@ -9,8 +9,13 @@ import UIKit
 
 class SelectedProfileView: BaseView {
     
-    var userData: Int = ApplicationUserData.profileNumber
+    var userData: Int
     var isClickable: Bool = true
+    
+    init(userData: Int) {
+        self.userData = userData
+        super.init(frame: .zero)
+    }
     
     lazy var button: UIButton = {
         let button = UIButton()
@@ -39,9 +44,7 @@ class SelectedProfileView: BaseView {
     
     override func configureViewLayout() {
         button.snp.makeConstraints {
-            $0.top.leading.equalToSuperview().offset(10)
-            $0.trailing.bottom.equalToSuperview().offset(-10)
-            $0.height.equalTo(button.snp.width)
+            $0.edges.equalToSuperview().inset(10)
         }
         
         subImageView.snp.makeConstraints {
@@ -51,9 +54,12 @@ class SelectedProfileView: BaseView {
     }
     
     override func configureViewDetails() {
-        let profileNumber = userData == 100 ? Int.random(in: 1...11) : userData
-        button.setImage(UIImage(named: "profile_\(profileNumber)"), for: .normal)
         button.imageView?.contentMode = .scaleAspectFill
+        changeImage(userData: userData)
+    }
+    
+    func changeImage(userData: Int) {
+        button.setImage(UIImage(named: "profile_\(userData)"), for: .normal)
     }
     
     override func layoutSubviews() {
