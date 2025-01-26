@@ -94,6 +94,7 @@ iOSInjectionProject/
 
 # Credentials
 APIKeys.swift
+Datasource.swift
 
 # Source of Data
 Datasource.swift
