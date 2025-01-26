@@ -10,6 +10,7 @@ import UIKit
 protocol DrawingEssentials {
     func configureViewHierarchy()
     func configureViewLayout()
+    func configureViewDetails()
 }
 
 class BaseView: UIView, DrawingEssentials {
@@ -44,6 +45,7 @@ class BaseViewController: UIViewController, DrawingEssentials {
         
         configureViewHierarchy()
         configureViewLayout()
+        configureViewDetails()
     }
     
     func setInitialValue(){}
@@ -66,5 +68,29 @@ class BaseViewController: UIViewController, DrawingEssentials {
         
     }
     func configureViewHierarchy() {}
+    func configureViewLayout() {}
+    func configureViewDetails() {}
+}
+
+class BaseCollectionViewCell: UICollectionViewCell, DrawingEssentials {
+    
+    
+    override init(frame: CGRect) {
+        super.init(frame: .zero)
+        
+        configureViewHierarchy()
+        configureViewLayout()
+        configureViewDetails()
+    }
+    
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func configureViewDetails() {}
+    
+    func configureViewHierarchy() {}
+    
     func configureViewLayout() {}
 }
