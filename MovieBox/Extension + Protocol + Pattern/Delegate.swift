@@ -6,3 +6,8 @@
 //
 
 import Foundation
+
+protocol ReverseValueAssigning {
+    func upstreamAction<T>(with: T)
+}
+
