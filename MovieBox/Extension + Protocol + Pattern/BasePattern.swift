@@ -61,9 +61,9 @@ class BaseViewController: UIViewController, DrawingEssentials {
         if let title = navigationName {
             navigationItem.title = title
         }
-
+        
         //TODO: setting backButtonTitle didn't work. so did have to change the button it self.
-        //Why the button cannot have the changed string. 
+        //Why the button cannot have the changed string.
         navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
         
     }
@@ -73,7 +73,6 @@ class BaseViewController: UIViewController, DrawingEssentials {
 }
 
 class BaseCollectionViewCell: UICollectionViewCell, DrawingEssentials {
-    
     
     override init(frame: CGRect) {
         super.init(frame: .zero)
@@ -93,4 +92,28 @@ class BaseCollectionViewCell: UICollectionViewCell, DrawingEssentials {
     func configureViewHierarchy() {}
     
     func configureViewLayout() {}
+}
+
+class BaseTableViewCell : UITableViewCell, DrawingEssentials {
+    
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        
+        configureViewHierarchy()
+        configureViewLayout()
+        configureViewDetails()
+    }
+    
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func configureViewHierarchy() {}
+    
+    func configureViewLayout() {}
+    
+    func configureViewDetails() {}
+    
+    
 }

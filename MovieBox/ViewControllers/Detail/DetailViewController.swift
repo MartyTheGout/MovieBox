@@ -10,12 +10,12 @@ import SnapKit
 
 final class DetailViewController: BaseViewController {
 
-    var data: Movie?
+    var data: TrendingMovie?
     
     let label: UILabel = {
         let label = UILabel()
-        label.text = "Search View is under construction"
-        
+        label.text = "Detail View is under construction"
+        label.textColor = .white
         return label
     }()
     
@@ -33,5 +33,9 @@ final class DetailViewController: BaseViewController {
         label.snp.makeConstraints {
             $0.center.equalToSuperview()
         }
+    }
+    
+    override func configureViewDetails() {
+        view.backgroundColor = .black
     }
 }
