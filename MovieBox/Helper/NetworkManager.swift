@@ -55,7 +55,7 @@ enum HttpResponseError : Error {
 enum MoviewRequest {
     
     case trending
-    case search
+    case search(query: String, page: Int)
     case credit
     case image
     
@@ -72,7 +72,7 @@ enum MoviewRequest {
     var endpoint: URL {
         switch self {
         case .trending: return URL(string: baseURL + "\(currentAPIVersion)/"+"trending/movie/day?language=ko-KR&page=1" )!
-        case .search: return URL(string: baseURL + "" )!
+        case .search(let query, let page): return URL(string: baseURL + "\(currentAPIVersion)/"+"search/movie?query=\(query)&include_adult=false&language=ko-KR&page=\(page)" )!
         case .credit: return URL(string: baseURL + "")!
         case .image : return URL(string:"")!
         }
@@ -90,6 +90,7 @@ final class NetworkManager {
         failureHandler: ( (AFError, HttpResponseError) -> Void)?
     ) {
         AF.request(apiKind.endpoint, method: apiKind.method, headers: apiKind.authorizationHeader).responseDecodable(of: T.self) { response in
+            
             switch response.result {
             case .success(let value):
                 completionHandler(value)
