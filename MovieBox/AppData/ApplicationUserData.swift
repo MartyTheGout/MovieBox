@@ -47,7 +47,7 @@ enum ApplicationUserData {
     static var registrationDate: Date
     
     @UserDefault(key: "LIKED_ID_ARRAY", defaultValue: [])
-    static var likedIdArray: [String]
+    static var likedIdArray: [Int]
     
     @UserDefault(key: "RECENTLY_USED_KEYWORD", defaultValue: [])
     static var recentlyUsedKeyword: [String]

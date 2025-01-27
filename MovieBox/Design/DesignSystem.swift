@@ -30,7 +30,7 @@ enum AppSFSymbol: String {
     case camera = "camera.fill"
     case x = "xmark"
     case whiteHeart = "heart"
-    case blackHeartd = "heart.fill"
+    case blackHeart = "heart.fill"
     case calendar = "calendar"
     case magnifyingglass = "magnifyingglass"
     case star = "star.fill"
