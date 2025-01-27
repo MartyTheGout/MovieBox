@@ -8,20 +8,22 @@
 import UIKit
 
 class MainViewController: BaseViewController {
-
-//    let recentlyUsedKeyword = ApplicationUserData.recentlyUsedKeyword
+    
+    //    let recentlyUsedKeyword = ApplicationUserData.recentlyUsedKeyword
     var recentlyUsedKeyword = ["마블 엔드게임","더 지니어스","권상우가 나오는","왕좌의 게임","스릴러","공포","감동이 밀려드는"]
     
     let mainCard = MainCardView()
     
-    lazy var todayMovieList: [Movie] = [] {
+    lazy var todayMovieList: [TrendingMovie] = [] {
         didSet {
             collectionView.reloadData()
         }
     }
     
+    var selectedKeyword: String = ""
+    
     let searchHeaderView: UIStackView = {
-      let stackView = UIStackView()
+        let stackView = UIStackView()
         stackView.axis = .horizontal
         stackView.distribution = .equalSpacing
         return stackView
@@ -42,7 +44,7 @@ class MainViewController: BaseViewController {
             string: "전체 삭제",
             attributes: [
                 .foregroundColor : AppColor.tintBlue.inUIColorFormat,
-                    .font : UIFont.systemFont(ofSize: 15, weight: .bold)
+                .font : UIFont.systemFont(ofSize: 15, weight: .bold)
             ]
         )
         button.setAttributedTitle(attributedString, for: .normal)
@@ -52,8 +54,9 @@ class MainViewController: BaseViewController {
     let noresultLabel : UILabel = {
         let label = UILabel()
         label.text = "최근 검색어 내역이 없습니다."
-        label.textColor = AppColor.cardBackground.inUIColorFormat
-        label.font = .systemFont(ofSize: 11, weight: .bold)
+        label.textColor = AppColor.subBackground.inUIColorFormat
+        label.font = .systemFont(ofSize: 14, weight: .bold)
+        label.textAlignment = .center
         return label
     }()
     
@@ -102,7 +105,7 @@ class MainViewController: BaseViewController {
         collectionView.dataSource = self
         collectionView.register(MainMovieCollectionCell.self, forCellWithReuseIdentifier: MainMovieCollectionCell.id)
         
-        NetworkManager.shared.callRequest( apiKind: .trending ) { (response : TrendingMovie) -> Void in
+        NetworkManager.shared.callRequest( apiKind: .trending ) { (response : TrendingResponse) -> Void in
             let movieList = response.results
             self.todayMovieList = movieList
         } failureHandler: { afError, statusError in
@@ -122,7 +125,7 @@ class MainViewController: BaseViewController {
     
     override func configureViewHierarchy() {
         
-        [mainCard, searchHeaderView, buttonScrollView, secondTitleLabel, collectionView].forEach { view.addSubview($0) }
+        [mainCard, searchHeaderView, buttonScrollView,noresultLabel, secondTitleLabel, collectionView].forEach { view.addSubview($0) }
         [searchTitleLable,keywordDeleteButton ].forEach { searchHeaderView.addArrangedSubview($0) }
         buttonScrollView.addSubview(buttonContainer)
         
@@ -130,9 +133,9 @@ class MainViewController: BaseViewController {
             
             let button = CancellableButton(
                 keyword: value,
-                buttonAction: { 
+                buttonAction: {
                     print(#function)
-                    self.navigateToSearchPage(keyword: value)
+                    self.navigateToSearchPageWith(value)
                 },
                 cancelAction: {
                     guard let index = self.recentlyUsedKeyword.firstIndex(of: value) else {
@@ -142,9 +145,10 @@ class MainViewController: BaseViewController {
                     
                     self.recentlyUsedKeyword.remove(at: index)
                     print(self.recentlyUsedKeyword)
+                    
+                    self.toggleNoResultLabelState()
                 }
             )
-            
             buttonContainer.addArrangedSubview(button)
         }
     }
@@ -159,11 +163,16 @@ class MainViewController: BaseViewController {
             $0.top.equalTo(mainCard.snp.bottom).offset(16)
             $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(16)
         }
-        
+
         buttonScrollView.snp.makeConstraints{
             $0.top.equalTo(searchHeaderView.snp.bottom).offset(10)
             $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
-            $0.leading.equalTo(view.safeAreaLayoutGuide)
+        }
+        
+        noresultLabel.snp.makeConstraints {
+            $0.top.equalTo(searchHeaderView.snp.bottom).offset(16)
+            $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
+            $0.height.equalTo(buttonScrollView.snp.height) //TODO: 버튼이 사라졌을 때에, 다른뷰에는 변화가 없는 것처럼 하고싶다.
         }
         
         buttonContainer.snp.makeConstraints {
@@ -173,6 +182,7 @@ class MainViewController: BaseViewController {
         
         secondTitleLabel.snp.makeConstraints {
             $0.top.equalTo(buttonScrollView.snp.bottom).offset(16)
+            $0.top.equalTo(noresultLabel.snp.bottom).offset(16)
             $0.leading.equalTo(view.safeAreaLayoutGuide).inset(16)
         }
         
@@ -186,6 +196,10 @@ class MainViewController: BaseViewController {
     override func configureViewDetails() {
         view.backgroundColor = AppColor.mainBackground.inUIColorFormat
         collectionView.backgroundColor = AppColor.mainBackground.inUIColorFormat
+        
+        keywordDeleteButton.addTarget(self, action: #selector(deleteSearchHistory), for: .touchUpInside)
+        
+        toggleNoResultLabelState()
     }
     
     override func viewDidLayoutSubviews() {
@@ -193,15 +207,30 @@ class MainViewController: BaseViewController {
         
         mainCard.layer.cornerRadius = 10
     }
+    
+    private func toggleNoResultLabelState(){
+        noresultLabel.isHidden =  recentlyUsedKeyword.count == 0 ? false : true
+    }
 }
 
 extension MainViewController {
-    @objc func navigateToSearchPage(keyword: String?) {
+    @objc func navigateToSearchPage() {
         let destinationVC = SearchViewController()
-        if let keyword = keyword {
-            destinationVC.currentKeyoword = keyword
-        }
         navigationController?.pushViewController(destinationVC, animated: true)
+    }
+    
+    func navigateToSearchPageWith(_: String) {
+        let destinationVC = SearchViewController()
+        destinationVC.currentKeyoword = selectedKeyword
+        navigationController?.pushViewController(destinationVC, animated: true)
+    }
+    
+    @objc func deleteSearchHistory() {
+        recentlyUsedKeyword = []
+        ApplicationUserData.recentlyUsedKeyword = recentlyUsedKeyword
+        
+        buttonContainer.subviews.forEach { $0.removeFromSuperview() }
+        toggleNoResultLabelState()
     }
 }
 
@@ -219,9 +248,10 @@ extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSour
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        
         let movie = todayMovieList[indexPath.item]
+        let destinationVC = DetailViewController()
+        destinationVC.data = movie
         
-        
+        navigationController?.pushViewController(destinationVC, animated: true)
     }
 }

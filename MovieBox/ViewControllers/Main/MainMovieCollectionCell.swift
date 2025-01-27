@@ -14,6 +14,8 @@ final class MainMovieCollectionCell: BaseCollectionViewCell {
     static var id : String {
         String(describing: self)
     }
+    
+    var movieId : Int?
 
     let imageView: UIImageView = {
        let imageView = UIImageView()
@@ -70,32 +72,54 @@ final class MainMovieCollectionCell: BaseCollectionViewCell {
         }
         
         overviewLabel.snp.makeConstraints{
-            $0.top.equalTo(stackView.snp.bottom)
+            $0.top.equalTo(stackView.snp.bottom).offset(8)
             $0.horizontalEdges.equalTo(contentView)
         }
     }
     
     override func configureViewDetails() {
         contentView.backgroundColor = AppColor.mainBackground.inUIColorFormat
+        likeButton.addTarget(self, action: #selector(updateLikeStatus), for: .touchUpInside)
     }
     
-    func fillUpData(movie: Movie) {
-        let imageUrl = Datasource.baseImageURL.rawValue + movie.backdropPath
-        let url = URL(string: imageUrl)
-        imageView.kf.setImage(with: url )
+    @objc func updateLikeStatus() {
+        guard let id = movieId else {
+            print("[not-proper assignment] id is not set properly")
+            return
+        }
+        
+        if let idLocation = ApplicationUserData.likedIdArray.firstIndex(of: id) {
+            ApplicationUserData.likedIdArray.remove(at: idLocation)
+        } else {
+            ApplicationUserData.likedIdArray.append(id)
+        }
+        
+        showLikeStatus(id: id)
+    }
+    
+    func fillUpData(movie: TrendingMovie) {
+        if let backdropPath = movie.backdropPath {
+            let imageUrl = Datasource.baseImageURL.rawValue + backdropPath
+            let url = URL(string: imageUrl)
+            imageView.kf.setImage(with: url )
+        }
         
         titleLable.text = movie.title
         
-        let image = ApplicationUserData.likedIdArray.contains(movie.id) ? AppSFSymbol.blackHeart.image : AppSFSymbol.whiteHeart.image
-        likeButton.setImage(image, for: .normal)
+        movieId = movie.id
+        showLikeStatus(id: movie.id)
         
         overviewLabel.text = movie.overview
+    }
+    
+    private func showLikeStatus(id: Int) {
+        let image = ApplicationUserData.likedIdArray.contains(id) ? AppSFSymbol.blackHeart.image : AppSFSymbol.whiteHeart.image
+        likeButton.setImage(image, for: .normal)
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
         
-        imageView.layer.cornerRadius = 10
-        
+        imageView.layer.cornerRadius = 10 // TODO: 하단 이미지에만 cornerRaius가 적용된 것처럼 보인다. 
     }
 }
