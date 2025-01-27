@@ -134,7 +134,6 @@ class MainViewController: BaseViewController {
             let button = CancellableButton(
                 keyword: value,
                 buttonAction: {
-                    print(#function)
                     self.navigateToSearchPageWith(value)
                 },
                 cancelAction: {
