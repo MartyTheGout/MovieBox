@@ -20,9 +20,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         window = UIWindow(windowScene: windowScene)
         
-        let rootVC = ApplicationUserData.firstLauchState || ApplicationUserData.withdrawalState ? OnboardViewController() : MainTabBarController()
+        let rootVC = ApplicationUserData.firstLauchState || ApplicationUserData.withdrawalState ? UINavigationController(rootViewController: OnboardViewController()) : MainTabBarController()
         
-        window?.rootViewController = UINavigationController(rootViewController: rootVC)
+        window?.rootViewController = rootVC
         window?.makeKeyAndVisible()
     }
 

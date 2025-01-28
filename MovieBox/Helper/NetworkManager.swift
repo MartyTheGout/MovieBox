@@ -8,7 +8,6 @@
 import Foundation
 import Alamofire
 
-
 enum HttpResponseError : Error {
     case incorrectParameters
     case unautorized
@@ -57,7 +56,7 @@ enum MoviewRequest {
     case trending
     case search(query: String, page: Int)
     case credit
-    case image
+    case image(movieId: Int)
     
     var authorizationHeader: HTTPHeaders {
         return ["Authorization": "Bearer \(APIKeys.accessKey.rawValue)"]
@@ -74,7 +73,7 @@ enum MoviewRequest {
         case .trending: return URL(string: baseURL + "\(currentAPIVersion)/"+"trending/movie/day?language=ko-KR&page=1" )!
         case .search(let query, let page): return URL(string: baseURL + "\(currentAPIVersion)/"+"search/movie?query=\(query)&include_adult=false&language=ko-KR&page=\(page)" )!
         case .credit: return URL(string: baseURL + "")!
-        case .image : return URL(string:"")!
+        case .image(let movieId) : return URL(string: baseURL + "\(currentAPIVersion)/"+"/movie/\(movieId)/images")!
         }
     }
 }
