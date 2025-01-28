@@ -9,39 +9,81 @@ import SnapKit
 
 final class SearchViewController: BaseViewController {
     
-    var currentKeyoword : String?
+    var currentKeyword : String? {
+        didSet {
+            guard let keyword = currentKeyword else { return }
+            if searchBar.text == currentKeyword {
+            
+            } else {
+                // when being currentKeyword set from outside
+                searchBar.text = keyword
+                executeSearchEvent(queryString: keyword)
+            }
+        }
+    }
+    
+    var isFirstSearch = false // for search with keyword entrance
     var page = 1
+    var availableNextFetching = true
     
     var data: [SearchedMovie] = [] {
         didSet {
             tableView.reloadData()
+            handleSearchResultOnView()
         }
     }
     
     let searchBar : UISearchBar = {
         let searchBar = UISearchBar()
-        searchBar.placeholder = "찾고 싶은 영화를 검색해주세요."
+        searchBar.barTintColor = AppColor.mainBackground.inUIColorFormat
+        searchBar.searchTextField.leftView?.tintColor = AppColor.subInfoDeliver.inUIColorFormat
+        searchBar.searchTextField.attributedPlaceholder = NSAttributedString(string: "찾고 싶은 영화를 검색해주세요.", attributes: [.foregroundColor: AppColor.subInfoDeliver.inUIColorFormat])
+        searchBar.searchTextField.textColor = AppColor.mainInfoDeliver.inUIColorFormat
+        
         return searchBar
     }()
     
     let tableView : UITableView = {
         let tableView = UITableView()
+        tableView.backgroundColor = AppColor.mainBackground.inUIColorFormat
         return tableView
+    }()
+    
+    let noResultView : UIView = {
+        let uiView = UIView()
+        
+        let noResultSentence = "원하는 검색결과를 찾지 못했습니다."
+        let label = UILabel()
+        label.textColor = AppColor.subBackground.inUIColorFormat
+        label.font = UIFont.systemFont(ofSize: 15, weight: .bold)
+        label.text = noResultSentence
+        
+        uiView.addSubview(label)
+        
+        label.snp.makeConstraints {
+            $0.center.equalTo(uiView)
+        }
+        
+        return uiView
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        searchBar.delegate = self
+        
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.prefetchDataSource = self
         tableView.register(SearchTableViewCell.self, forCellReuseIdentifier: SearchTableViewCell.id)
         
-        NetworkManager.shared.callRequest(apiKind: .search(query: "소닉", page: page)) { (response: SearchResponse) -> Void in
-            self.data = response.results
-        } failureHandler: { afError, responseError in
-            dump(afError)
-            dump(responseError)
+        if let keyword = currentKeyword {
+            searchBar.text = keyword
+        } else {
+            searchBar.searchTextField.becomeFirstResponder()
         }
+        
+        noResultView.isHidden = true
     }
     
     override func setInitialValue() {
@@ -49,7 +91,7 @@ final class SearchViewController: BaseViewController {
     }
     
     override func configureViewHierarchy() {
-        [searchBar, tableView].forEach {
+        [searchBar, tableView, noResultView].forEach {
             view.addSubview($0)
         }
     }
@@ -65,14 +107,24 @@ final class SearchViewController: BaseViewController {
             $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
             $0.bottom.equalTo(view.safeAreaLayoutGuide)
         }
+        
+        noResultView.snp.makeConstraints {
+            $0.top.equalTo(searchBar.snp.bottom).offset(16)
+            $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
+            $0.bottom.equalTo(view.safeAreaLayoutGuide)
+        }
     }
     
     override func configureViewDetails() {
         view.backgroundColor = AppColor.mainBackground.inUIColorFormat
-        
-        searchBar.barTintColor = AppColor.mainBackground.inUIColorFormat
-        
-        tableView.backgroundColor = AppColor.mainBackground.inUIColorFormat
+    }
+    
+    private func handleSearchResultOnView() {
+        if data.isEmpty {
+            noResultView.isHidden = false
+        } else {
+            noResultView.isHidden = true
+        }
     }
 }
 
@@ -86,7 +138,6 @@ extension SearchViewController : UITableViewDelegate, UITableViewDataSource {
             cell.fillUpData(with: data[indexPath.row])
             return cell
         }
-        
         return UITableViewCell()
     }
     
@@ -97,6 +148,62 @@ extension SearchViewController : UITableViewDelegate, UITableViewDataSource {
 }
 
 extension SearchViewController : UITableViewDataSourcePrefetching {
-    func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {}
+    func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
+        for index in indexPaths {
+            if index.item > data.count - 5 && availableNextFetching {
+                guard let keyword = currentKeyword else { return }
+                page += 1
+                executeSearchEvent(queryString: keyword)
+                availableNextFetching = false // This line prevent from multiple request calling, which means, just one next request call per 20 data counts
+            }
+        }
+    }
 }
 
+extension SearchViewController : UISearchBarDelegate {
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        guard let keyword = searchBar.text else { return }
+        
+        executeSearchEvent(queryString: keyword)
+        
+        if !ApplicationUserData.recentlyUsedKeyword.contains(keyword) {
+            ApplicationUserData.recentlyUsedKeyword.append(keyword)
+        }
+        
+        searchBar.resignFirstResponder()
+        view.endEditing(true)
+    }
+}
+
+extension SearchViewController {
+    func executeSearchEvent(queryString: String) {
+        
+        if queryString != currentKeyword {
+            page = 1
+        }
+        
+        NetworkManager.shared.callRequest(apiKind: .search(query: queryString, page: page)) { (response: SearchResponse) -> Void in
+              
+            if queryString == self.currentKeyword {
+                self.data.append(contentsOf: response.results)
+            } else {
+                self.data = response.results
+                if !self.data.isEmpty {
+                    self.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+                    self.page = 1
+                }
+            }
+        
+            self.currentKeyword = queryString
+            
+            if self.page < response.totalPages {
+                self.availableNextFetching = true
+            } else {
+                self.availableNextFetching = false
+            }
+        } failureHandler: { afError, responseError in
+            dump(afError)
+            dump(responseError)
+        }
+    }
+}
