@@ -15,10 +15,10 @@ struct TrendingResponse: Codable {
 struct TrendingMovie: Codable {
     let backdropPath: String?
     let id: Int
-    let title, overview, posterPath: String
-    let genreIDS: [Int]
-    let releaseDate: String
-    let voteAverage: Float
+    let title, overview, posterPath: String?
+    let genreIDS: [Int]?
+    let releaseDate: String?
+    let voteAverage: Float?
 
     enum CodingKeys: String, CodingKey {
         case backdropPath = "backdrop_path"
@@ -91,10 +91,10 @@ struct SearchResponse: Codable {
 struct SearchedMovie: Codable {
     let backdropPath: String?
     let id: Int
-    let title,overview, posterPath: String
-    let genreIDS: [Int]
-    let releaseDate: String
-    let voteAverage: Double
+    let title,overview, posterPath: String?
+    let genreIDS: [Int]?
+    let releaseDate: String?
+    let voteAverage: Double?
     
     enum CodingKeys: String, CodingKey {
         case backdropPath = "backdrop_path"
@@ -104,5 +104,19 @@ struct SearchedMovie: Codable {
         case genreIDS = "genre_ids"
         case releaseDate = "release_date"
         case voteAverage = "vote_average"
+    }
+}
+
+struct ImageResponse: Codable {
+    let backdrops: [MovieImage]
+    let id: Int
+    let posters: [MovieImage]
+}
+
+struct MovieImage: Codable {
+    let filePath: String
+
+    enum CodingKeys: String, CodingKey {
+        case filePath = "file_path"
     }
 }
