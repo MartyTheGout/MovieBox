@@ -9,13 +9,15 @@ import UIKit
 import SnapKit
 import Kingfisher
 
-final class MainMovieCollectionCell: BaseCollectionViewCell {
+final class MainMovieCollectionCell: BaseCollectionViewCell, IncludingLike {
     
     static var id : String {
         String(describing: self)
     }
     
     var movieId : Int?
+    
+    var delegate : ReverseValueAssigning?
 
     let imageView: UIImageView = {
        let imageView = UIImageView()
@@ -39,7 +41,7 @@ final class MainMovieCollectionCell: BaseCollectionViewCell {
         return label
     }()
     
-    let likeButton : UIButton = {
+    var likeButton : UIButton = {
         let button = UIButton(type: .custom)
         button.setImage(AppSFSymbol.whiteHeart.image, for: .normal)
         button.tintColor = AppColor.tintBlue.inUIColorFormat
@@ -94,6 +96,8 @@ final class MainMovieCollectionCell: BaseCollectionViewCell {
             ApplicationUserData.likedIdArray.append(id)
         }
         
+        delegate?.upstreamAction(with: ApplicationUserData.likedIdArray.count)
+        
         showLikeStatus(id: id)
     }
     
@@ -112,7 +116,7 @@ final class MainMovieCollectionCell: BaseCollectionViewCell {
         overviewLabel.text = movie.overview
     }
     
-    private func showLikeStatus(id: Int) {
+    func showLikeStatus(id: Int) {
         let image = ApplicationUserData.likedIdArray.contains(id) ? AppSFSymbol.blackHeart.image : AppSFSymbol.whiteHeart.image
         likeButton.setImage(image, for: .normal)
     }

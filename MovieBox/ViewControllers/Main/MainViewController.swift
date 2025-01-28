@@ -181,6 +181,7 @@ class MainViewController: BaseViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         clearAndRefetchRecentSearch()
+        mainCard.refreshViewData()
     }
     
     private func clearAndRefetchRecentSearch() {
@@ -250,6 +251,7 @@ extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSour
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MainMovieCollectionCell.id, for: indexPath) as? MainMovieCollectionCell {
             cell.fillUpData(movie: todayMovieList[indexPath.item])
+            cell.delegate = self
             return cell
         }
         return UICollectionViewCell()
@@ -258,8 +260,17 @@ extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSour
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let movie = todayMovieList[indexPath.item]
         let destinationVC = DetailViewController()
-        destinationVC.data = movie
+        destinationVC.bringDetailData(id: movie.id, title: movie.title ?? "")
         
         navigationController?.pushViewController(destinationVC, animated: true)
+    }
+}
+
+extension MainViewController: ReverseValueAssigning {
+    // for like button pressed from collectionviewcell
+    func upstreamAction<T>(with: T) {
+        if let _ = with as? Int {
+            mainCard.refreshViewData()
+        }
     }
 }
