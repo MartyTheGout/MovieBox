@@ -53,14 +53,6 @@ final class SearchTableViewCell: BaseTableViewCell {
         return button
     }()
     
-    let genreLabel : UILabel = {
-        let label = UILabel()
-        label.textColor = AppColor.mainInfoDeliver.inUIColorFormat
-        label.font = UIFont.systemFont(ofSize: 13)
-        label.backgroundColor = AppColor.cardBackground.inUIColorFormat
-        return label
-    }()
-    
     override func configureViewHierarchy() {
         [mainImage, titleLabel, dateLabel, genreStack, likeButton].forEach{
             contentView.addSubview($0)
@@ -120,25 +112,17 @@ final class SearchTableViewCell: BaseTableViewCell {
             
             let genreInKorean = Genre(rawValue: genre)?.koreanName
             
-            let label = {
-                let label = UILabel()
-                label.text = genreInKorean
-                label.textColor = AppColor.mainInfoDeliver.inUIColorFormat
-                label.font = UIFont.systemFont(ofSize: 13)
-                label.backgroundColor = AppColor.cardBackground.inUIColorFormat
-                label.layer.cornerRadius = label.frame.height / 2
-                return label
-            }()
+            let genreView = GenreInfoView()
+            genreView.backgroundColor = AppColor.cardBackground.inUIColorFormat
+            genreView.fillupData(text: genreInKorean!)
             
-            genreStack.addArrangedSubview(label)
+            genreStack.addArrangedSubview(genreView)
         }
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
         mainImage.clipsToBounds = true
-//        mainImage.layer.masksToBounds = true
         mainImage.layer.cornerRadius = 10
     }
-    
 }

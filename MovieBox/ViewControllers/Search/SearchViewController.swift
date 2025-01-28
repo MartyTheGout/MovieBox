@@ -69,6 +69,9 @@ final class SearchViewController: BaseViewController {
     
     override func configureViewDetails() {
         view.backgroundColor = AppColor.mainBackground.inUIColorFormat
+        
+        searchBar.barTintColor = AppColor.mainBackground.inUIColorFormat
+        
         tableView.backgroundColor = AppColor.mainBackground.inUIColorFormat
     }
 }
