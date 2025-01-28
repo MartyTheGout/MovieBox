@@ -8,10 +8,12 @@
 import UIKit
 
 class MainCardView: BaseView {
-
-    let imageView: UIImageView = {
+    
+    var profileImageAsset = ApplicationUserData.profileNumber
+    
+    lazy var imageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: "profile_\(ApplicationUserData.profileNumber)")
+        imageView.image = UIImage(named: "profile_\(profileImageAsset)")
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         getBlueBoldBorder(view: imageView) // TODO: check , check value capture
@@ -26,21 +28,22 @@ class MainCardView: BaseView {
         return stack
     }()
     
-    let nicknameLabel: UILabel = {
+    var nickname = ApplicationUserData.nickname
+    lazy var  nicknameLabel: UILabel = {
         let label = UILabel()
         label.textColor = AppColor.subInfoDeliver.inUIColorFormat
         label.font = .systemFont(ofSize: 17, weight: .bold)
         label.textAlignment = .left
-        label.text = "\(ApplicationUserData.nickname)"
+        label.text = nickname
         return label
     }()
     
+    var date = ApplicationUserData.registrationDate
     let dateLabel: UILabel = {
-       let label = UILabel()
+        let label = UILabel()
         label.textColor = AppColor.subBackground.inUIColorFormat
         label.font = .systemFont(ofSize: 12, weight: .bold)
         label.textAlignment = .left
-        label.text = "\(ApplicationUserData.registrationDate)"
         return label
     }()
     
@@ -51,11 +54,12 @@ class MainCardView: BaseView {
         return imageView
     }()
     
-    let likeInfoButton: UIButton = {
+    var likeCount = ApplicationUserData.likedIdArray.count
+    lazy var likeInfoButton: UIButton = {
         let button = UIButton()
         
         let attributedString = NSAttributedString(
-            string: "\(ApplicationUserData.likedIdArray.count)개의 무비박스 보관 중",
+            string: "\(likeCount)개의 무비박스 보관 중",
             attributes: [
                 .foregroundColor: AppColor.mainInfoDeliver.inUIColorFormat,
                 .font: UIFont.systemFont(ofSize: 16, weight: .bold)
@@ -100,6 +104,14 @@ class MainCardView: BaseView {
     
     override func configureViewDetails() {
         backgroundColor = AppColor.cardBackground.inUIColorFormat
+        dateLabel.text = convertDateToFormattedData(date: date)
+    }
+    
+    private func convertDateToFormattedData (date: Date) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yy.MM.dd"
+        
+        return dateFormatter.string(from: date)
     }
     
     override func layoutSubviews() {
@@ -107,5 +119,35 @@ class MainCardView: BaseView {
         
         imageView.layer.cornerRadius = imageView.frame.height / 2
         likeInfoButton.layer.cornerRadius = 10
+    }
+    
+    func refreshViewData() {
+        if nickname != ApplicationUserData.nickname {
+            nickname = ApplicationUserData.nickname
+            nicknameLabel.text = nickname
+        }
+        
+        if date != ApplicationUserData.registrationDate {
+            date = ApplicationUserData.registrationDate
+            dateLabel.text = convertDateToFormattedData(date: date)
+        }
+        
+        if likeCount != ApplicationUserData.likedIdArray.count {
+            likeCount = ApplicationUserData.likedIdArray.count
+            print(likeCount)
+            
+            let attributedString = NSAttributedString(
+                string: "\(likeCount)개의 무비박스 보관 중",
+                attributes: [
+                    .foregroundColor: AppColor.mainInfoDeliver.inUIColorFormat,
+                    .font: UIFont.systemFont(ofSize: 16, weight: .bold)
+                ])
+            likeInfoButton.setAttributedTitle(attributedString, for: .normal)
+        }
+        
+        if profileImageAsset != ApplicationUserData.profileNumber {
+            profileImageAsset = ApplicationUserData.profileNumber
+            imageView.image = UIImage(named: "profile_\(profileImageAsset)")
+        }
     }
 }
