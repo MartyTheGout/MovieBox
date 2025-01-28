@@ -9,8 +9,7 @@ import UIKit
 
 class MainViewController: BaseViewController {
     
-    //    let recentlyUsedKeyword = ApplicationUserData.recentlyUsedKeyword
-    var recentlyUsedKeyword = ["마블 엔드게임","더 지니어스","권상우가 나오는","왕좌의 게임","스릴러","공포","감동이 밀려드는"]
+    var recentlyUsedKeyword = ApplicationUserData.recentlyUsedKeyword
     
     let mainCard = MainCardView()
     
@@ -19,8 +18,6 @@ class MainViewController: BaseViewController {
             collectionView.reloadData()
         }
     }
-    
-    var selectedKeyword: String = ""
     
     let searchHeaderView: UIStackView = {
         let stackView = UIStackView()
@@ -129,27 +126,7 @@ class MainViewController: BaseViewController {
         [searchTitleLable,keywordDeleteButton ].forEach { searchHeaderView.addArrangedSubview($0) }
         buttonScrollView.addSubview(buttonContainer)
         
-        recentlyUsedKeyword.enumerated().forEach { index, value in
-            
-            let button = CancellableButton(
-                keyword: value,
-                buttonAction: {
-                    self.navigateToSearchPageWith(value)
-                },
-                cancelAction: {
-                    guard let index = self.recentlyUsedKeyword.firstIndex(of: value) else {
-                        print("There is no \(value) in recent keyword")
-                        return
-                    }
-                    
-                    self.recentlyUsedKeyword.remove(at: index)
-                    print(self.recentlyUsedKeyword)
-                    
-                    self.toggleNoResultLabelState()
-                }
-            )
-            buttonContainer.addArrangedSubview(button)
-        }
+        
     }
     
     override func configureViewLayout() {
@@ -201,6 +178,38 @@ class MainViewController: BaseViewController {
         toggleNoResultLabelState()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        clearAndRefetchRecentSearch()
+    }
+    
+    private func clearAndRefetchRecentSearch() {
+        buttonContainer.subviews.forEach {
+            $0.removeFromSuperview()
+        }
+        recentlyUsedKeyword = ApplicationUserData.recentlyUsedKeyword
+        
+        recentlyUsedKeyword.enumerated().forEach { index, value in
+            
+            let button = CancellableButton(
+                keyword: value,
+                buttonAction: {
+                    self.navigateToSearchPageWith(value)
+                },
+                cancelAction: {
+                    guard let index = self.recentlyUsedKeyword.firstIndex(of: value) else {
+                        print("There is no \(value) in recent keyword")
+                        return
+                    }
+                    
+                    self.recentlyUsedKeyword.remove(at: index)
+                    self.toggleNoResultLabelState()
+                }
+            )
+            buttonContainer.addArrangedSubview(button)
+        }
+    }
+    
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
@@ -218,9 +227,9 @@ extension MainViewController {
         navigationController?.pushViewController(destinationVC, animated: true)
     }
     
-    func navigateToSearchPageWith(_: String) {
+    func navigateToSearchPageWith(_ keyword: String) {
         let destinationVC = SearchViewController()
-        destinationVC.currentKeyoword = selectedKeyword
+        destinationVC.currentKeyword = keyword
         navigationController?.pushViewController(destinationVC, animated: true)
     }
     
