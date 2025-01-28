@@ -18,6 +18,7 @@ final class SearchTableViewCell: BaseTableViewCell {
     let mainImage : UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
+        
         return imageView
     }()
     
@@ -69,9 +70,9 @@ final class SearchTableViewCell: BaseTableViewCell {
     override func configureViewLayout() {
         mainImage.snp.makeConstraints {
             $0.top.leading.equalTo(contentView).offset(16)
-            let width: CGFloat = UIScreen.main.bounds.width / 4
+            let width: CGFloat = UIScreen.main.bounds.width / 5
             $0.width.equalTo(width)
-            $0.height.equalTo(width).multipliedBy(1.2)
+            $0.height.equalTo(mainImage.snp.width).multipliedBy(1.1)
         }
         
         titleLabel.snp.makeConstraints {
@@ -80,7 +81,7 @@ final class SearchTableViewCell: BaseTableViewCell {
         }
         
         dateLabel.snp.makeConstraints{
-            $0.top.equalTo(titleLabel.snp.bottom).offset(16)
+            $0.top.equalTo(titleLabel.snp.bottom).offset(8)
             $0.leading.equalTo(mainImage.snp.trailing).offset(16)
         }
         
@@ -105,8 +106,19 @@ final class SearchTableViewCell: BaseTableViewCell {
         titleLabel.text = data.title
         dateLabel.text = data.releaseDate
         
-        data.genreIDS.forEach { (id) in
-            let genreInKorean = Genre(rawValue: id)?.koreanName
+        // genreStack의 서브뷰 초기화
+        genreStack.subviews.forEach {
+            $0.removeFromSuperview()
+        }
+        
+        let availableGenre = 2
+        
+        for (index, genre) in data.genreIDS.enumerated() {
+            
+            // Application Spec: 검색페이지에서 열람가능한 장르 정보는 2개까지이다.
+            if index >= availableGenre { return }
+            
+            let genreInKorean = Genre(rawValue: genre)?.koreanName
             
             let label = {
                 let label = UILabel()
@@ -120,6 +132,13 @@ final class SearchTableViewCell: BaseTableViewCell {
             
             genreStack.addArrangedSubview(label)
         }
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        mainImage.clipsToBounds = true
+//        mainImage.layer.masksToBounds = true
+        mainImage.layer.cornerRadius = 10
     }
     
 }

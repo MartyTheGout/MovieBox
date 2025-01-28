@@ -14,7 +14,6 @@ final class SearchViewController: BaseViewController {
     
     var data: [SearchedMovie] = [] {
         didSet {
-            print(data)
             tableView.reloadData()
         }
     }
@@ -89,7 +88,7 @@ extension SearchViewController : UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        let imageHeight: CGFloat = ( UIScreen.main.bounds.width / 4 ) * 1.2
+        let imageHeight: CGFloat = ( UIScreen.main.bounds.width / 5 ) * 1.1
         return imageHeight + 16 * 2
     }
 }
