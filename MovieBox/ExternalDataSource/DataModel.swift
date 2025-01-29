@@ -9,25 +9,7 @@ import Foundation
 
 struct TrendingResponse: Codable {
     let page: Int
-    let results: [TrendingMovie]
-}
-
-struct TrendingMovie: Codable {
-    let backdropPath: String?
-    let id: Int
-    let title, overview, posterPath: String?
-    let genreIDS: [Int]?
-    let releaseDate: String?
-    let voteAverage: Float?
-
-    enum CodingKeys: String, CodingKey {
-        case backdropPath = "backdrop_path"
-        case id, title, overview
-        case posterPath = "poster_path"
-        case genreIDS = "genre_ids"
-        case releaseDate = "release_date"
-        case voteAverage = "vote_average"
-    }
+    let results: [Movie]
 }
 
 enum Genre: Int {
@@ -78,7 +60,7 @@ enum Genre: Int {
 
 struct SearchResponse: Codable {
     let page: Int
-    let results: [SearchedMovie]
+    let results: [Movie]
     let totalPages, totalResults: Int
 
     enum CodingKeys: String, CodingKey {
@@ -88,7 +70,7 @@ struct SearchResponse: Codable {
     }
 }
 
-struct SearchedMovie: Codable {
+struct Movie: Codable {
     let backdropPath: String?
     let id: Int
     let title,overview, posterPath: String?

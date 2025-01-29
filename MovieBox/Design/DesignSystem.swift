@@ -35,6 +35,7 @@ enum AppSFSymbol: String {
     case magnifyingglass = "magnifyingglass"
     case star = "star.fill"
     case film = "film.stack"
+    case filmSingle = "film"
     case popcorn = "popcorn"
     case person = "person.circle"
     case chevronRight = "chevron.right"
