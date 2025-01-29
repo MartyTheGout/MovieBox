@@ -13,7 +13,7 @@ class MainViewController: BaseViewController {
     
     let mainCard = MainCardView()
     
-    lazy var todayMovieList: [TrendingMovie] = [] {
+    lazy var todayMovieList: [Movie] = [] {
         didSet {
             collectionView.reloadData()
         }
@@ -125,8 +125,6 @@ class MainViewController: BaseViewController {
         [mainCard, searchHeaderView, buttonScrollView,noresultLabel, secondTitleLabel, collectionView].forEach { view.addSubview($0) }
         [searchTitleLable,keywordDeleteButton ].forEach { searchHeaderView.addArrangedSubview($0) }
         buttonScrollView.addSubview(buttonContainer)
-        
-        
     }
     
     override func configureViewLayout() {
@@ -181,6 +179,10 @@ class MainViewController: BaseViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         clearAndRefetchRecentSearch()
+        
+        if mainCard.likeCount != ApplicationUserData.likedIdArray.count {
+            collectionView.reloadData()
+        }
         mainCard.refreshViewData()
     }
     
@@ -260,7 +262,7 @@ extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSour
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let movie = todayMovieList[indexPath.item]
         let destinationVC = DetailViewController()
-        destinationVC.bringDetailData(id: movie.id, title: movie.title ?? "")
+        destinationVC.bringDetailData(data: movie)
         
         navigationController?.pushViewController(destinationVC, animated: true)
     }

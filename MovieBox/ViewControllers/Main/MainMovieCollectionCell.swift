@@ -101,7 +101,7 @@ final class MainMovieCollectionCell: BaseCollectionViewCell, IncludingLike {
         showLikeStatus(id: id)
     }
     
-    func fillUpData(movie: TrendingMovie) {
+    func fillUpData(movie: Movie) {
         if let backdropPath = movie.backdropPath {
             let imageUrl = Datasource.baseImageURL.rawValue + backdropPath
             let url = URL(string: imageUrl)

@@ -26,7 +26,7 @@ final class SearchViewController: BaseViewController {
     var page = 1
     var availableNextFetching = true
     
-    var data: [SearchedMovie] = [] {
+    var data: [Movie] = [] {
         didSet {
             tableView.reloadData()
             handleSearchResultOnView()

@@ -93,7 +93,7 @@ final class SearchTableViewCell: BaseTableViewCell, IncludingLike {
         likeButton.addTarget(self, action: #selector(updateLikeStatus), for: .touchUpInside)
     }
     
-    func fillUpData(with data: SearchedMovie) {
+    func fillUpData(with data: Movie) {
         movieId = data.id
         // TODO: Mysterious work for using this method, not working when locate the function in the end of this closure
         showLikeStatus(id: data.id)
