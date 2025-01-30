@@ -27,13 +27,13 @@ final class MainTabBarController: UITabBarController {
         let mainNC = UINavigationController(rootViewController: mainViewController)
         mainNC.tabBarItem = UITabBarItem(title: "CINEMA", image: mainVCSymbol, selectedImage: mainVCSymbolSelected)
         
-        let upcomingViewController = UIViewController() //TODO: 준비중이라는 메세지를 띄워주도록 구현
+        let upcomingViewController = InPrepareViewController()
         let upcommingVCSymbol = AppSFSymbol.film.image.withTintColor(unselectedColor)
         let upcommingVCSymbolSelected = AppSFSymbol.film.image.withTintColor(selectedColor)
         let upcommingNC = UINavigationController(rootViewController: upcomingViewController)
         upcommingNC.tabBarItem = UITabBarItem(title: "UPCOMING", image: upcommingVCSymbol, selectedImage: upcommingVCSymbolSelected)
         
-        let settingViewController = UIViewController()
+        let settingViewController = SettingViewController()
         let settingVCSymbol = AppSFSymbol.person.image.withTintColor(unselectedColor)
         let settingVCSymbolSelected = AppSFSymbol.person.image.withTintColor(selectedColor)
         let settingNC = UINavigationController(rootViewController: settingViewController)

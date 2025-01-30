@@ -135,6 +135,11 @@ extension ProfileViewController {
         ApplicationUserData.nickname = nickname
         ApplicationUserData.profileNumber = userData
         ApplicationUserData.firstLauchState.toggle()
+     
+        // for the case of re-join the app
+        if ApplicationUserData.withdrawalState {
+            ApplicationUserData.withdrawalState = false
+        }
         
         let destinationVC = MainTabBarController()
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene, let window = windowScene.windows.first else { return }

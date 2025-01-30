@@ -27,7 +27,16 @@ enum ApplicationUserData {
     static var firstLauchState: Bool
     
     @UserDefault(key: "WITHDRAWAL_STATE", defaultValue: false)
-    static var withdrawalState: Bool
+    static var withdrawalState: Bool {
+        didSet {
+            if withdrawalState {
+                profileNumber = 100
+                nickname = ""
+                likedIdArray = []
+                recentlyUsedKeyword = []
+            }
+        }
+    }
     
     @UserDefault(key: "PROFILE_NUMBER", defaultValue: 100)
     static var profileNumber: Int
@@ -50,6 +59,10 @@ enum ApplicationUserData {
     
     static func changeWithdrawlState() {
         withdrawalState.toggle()
+    }
+    
+    static func withdraw() {
+        withdrawalState = true
     }
 }
 
