@@ -378,6 +378,9 @@ extension DetailViewController {
                 self.backDropContentView.addSubview(imageView)
             }
             
+            // initially number is set to 5, but in case of less than 5 => need to set to precise value
+            self.pageControl.numberOfPages = self.backDropContentView.subviews.count
+            
             var horizontalCoordinateBase: ConstraintRelatableTarget = self.backDropContentView
             self.backDropContentView.subviews.forEach { subView in
                 subView.snp.makeConstraints {
