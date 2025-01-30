@@ -10,6 +10,17 @@ import SnapKit
 
 final class ProfileViewController: BaseViewController {
     
+    var isModalPresentation: Bool
+    
+    init (isModalPresentation: Bool = false) {
+        self.isModalPresentation = isModalPresentation
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    @MainActor required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     var userData: Int = {
         let userData = ApplicationUserData.profileNumber
         return userData == 100 ? Int.random(in: 0...11) : userData
@@ -46,9 +57,24 @@ final class ProfileViewController: BaseViewController {
         navigationName = "프로필 설정"
     }
     
+    override func configureNavigationBar() {
+        super.configureNavigationBar()
+        
+        if isModalPresentation {
+            navigationItem.leftBarButtonItem = UIBarButtonItem(image: AppSFSymbol.x.image, style: .plain, target: self, action: #selector(goBackToThePreviousView))
+            
+            navigationItem.rightBarButtonItem = UIBarButtonItem(title: "저장", style: .plain, target: self, action: #selector(modifyProfileInfo))
+            
+        }
+    }
+    
     override func configureViewHierarchy() {
-        [selectedProfileView, textFieldView, validationLabel, completionButton].forEach {
+        [selectedProfileView, textFieldView, validationLabel].forEach {
             view.addSubview($0)
+        }
+        
+        if !isModalPresentation {
+            view.addSubview(completionButton)
         }
     }
     
@@ -70,13 +96,17 @@ final class ProfileViewController: BaseViewController {
             $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(25)
         }
         
-        completionButton.snp.makeConstraints {
-            $0.top.equalTo(validationLabel.snp.bottom).offset(30)
-            $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(25)
+        if !isModalPresentation {
+            completionButton.snp.makeConstraints {
+                $0.top.equalTo(validationLabel.snp.bottom).offset(30)
+                $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(25)
+            }
         }
     }
     
     override func configureViewDetails() {
+        view.backgroundColor = AppColor.mainBackground.inUIColorFormat
+        
         textFieldView.textField.text = ApplicationUserData.nickname
         
         completionButton.addTarget(self, action: #selector(registerNickname), for: .touchUpInside)
@@ -128,8 +158,8 @@ extension ProfileViewController: UITextFieldDelegate {
     }
 }
 
+//MARK: Actions
 extension ProfileViewController {
-    
     @objc func registerNickname() {
         guard let nickname = textFieldView.textField.text else { return }
         ApplicationUserData.nickname = nickname
@@ -151,6 +181,16 @@ extension ProfileViewController {
     @objc func navigateToImageSelection() {
         let destinationVC = ImageSettingViewController(userData: userData, delegate: self)
         navigationController?.pushViewController(destinationVC, animated: true)
+    }
+    
+    @objc func goBackToThePreviousView(){
+        dismiss(animated: true)
+    }
+    
+    @objc func modifyProfileInfo() {
+        guard let nickname = textFieldView.textField.text else { return }
+        ApplicationUserData.nickname = nickname
+        ApplicationUserData.profileNumber = userData
     }
 }
 

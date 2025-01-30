@@ -20,6 +20,7 @@ final class MainViewController: BaseViewController {
         }
     }
     
+    //MARK: View Components
     let searchHeaderView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .horizontal
@@ -96,6 +97,7 @@ final class MainViewController: BaseViewController {
         return UICollectionView(frame: .zero, collectionViewLayout: flowLayout)
     }()
     
+    //MARK: View Controller LifeCycle Functions
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -175,6 +177,10 @@ final class MainViewController: BaseViewController {
         keywordDeleteButton.addTarget(self, action: #selector(deleteSearchHistory), for: .touchUpInside)
         
         toggleNoResultLabelState()
+        
+        mainCard.isUserInteractionEnabled = true
+        let tapOnProfileCard = UITapGestureRecognizer(target: self, action: #selector(showProfileSheet))
+        mainCard.addGestureRecognizer(tapOnProfileCard)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -223,29 +229,10 @@ final class MainViewController: BaseViewController {
     private func toggleNoResultLabelState(){
         noresultLabel.isHidden =  recentlyUsedKeyword.count == 0 ? false : true
     }
+
 }
 
-extension MainViewController {
-    @objc func navigateToSearchPage() {
-        let destinationVC = SearchViewController()
-        navigationController?.pushViewController(destinationVC, animated: true)
-    }
-    
-    func navigateToSearchPageWith(_ keyword: String) {
-        let destinationVC = SearchViewController()
-        destinationVC.currentKeyword = keyword
-        navigationController?.pushViewController(destinationVC, animated: true)
-    }
-    
-    @objc func deleteSearchHistory() {
-        recentlyUsedKeyword = []
-        ApplicationUserData.recentlyUsedKeyword = recentlyUsedKeyword
-        
-        buttonContainer.subviews.forEach { $0.removeFromSuperview() }
-        toggleNoResultLabelState()
-    }
-}
-
+//MARK: Collection Protocol
 extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         todayMovieList.count
@@ -269,11 +256,42 @@ extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSour
     }
 }
 
+//MARK: ReverseValueAssigning Protocol
 extension MainViewController: ReverseValueAssigning {
     // for like button pressed from collectionviewcell
     func upstreamAction<T>(with: T) {
         if let _ = with as? Int {
             mainCard.refreshViewData()
         }
+    }
+}
+
+//MARK: Actions
+extension MainViewController {
+    @objc func navigateToSearchPage() {
+        let destinationVC = SearchViewController()
+        navigationController?.pushViewController(destinationVC, animated: true)
+    }
+    
+    func navigateToSearchPageWith(_ keyword: String) {
+        let destinationVC = SearchViewController()
+        destinationVC.currentKeyword = keyword
+        navigationController?.pushViewController(destinationVC, animated: true)
+    }
+    
+    @objc func deleteSearchHistory() {
+        recentlyUsedKeyword = []
+        ApplicationUserData.recentlyUsedKeyword = recentlyUsedKeyword
+        
+        buttonContainer.subviews.forEach { $0.removeFromSuperview() }
+        toggleNoResultLabelState()
+    }
+    
+    @objc func showProfileSheet() {
+        let destinationVC = ProfileViewController()
+        let navigationController = UINavigationController(rootViewController: destinationVC)
+        navigationController.modalPresentationStyle = .pageSheet
+                
+        present(UINavigationController(rootViewController: destinationVC), animated: true)
     }
 }

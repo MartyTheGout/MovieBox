@@ -44,7 +44,7 @@ enum ApplicationUserData {
     @UserDefault(key: "NICKNAME", defaultValue: "")
     static var nickname: String
     
-    @UserDefault(key: "REGISTRATION_DATE", defaultValue: Date())
+    @UserDefault(key: "REGISTRATION_DATE", defaultValue: initialDate)
     static var registrationDate: Date
     
     @UserDefault(key: "LIKED_ID_ARRAY", defaultValue: [])
@@ -55,6 +55,12 @@ enum ApplicationUserData {
     
     static func withdraw() {
         withdrawalState = true
+    }
+    
+    static var initialDate : Date {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        return dateFormatter.date(from: "2000-01-01")!
     }
 }
 
