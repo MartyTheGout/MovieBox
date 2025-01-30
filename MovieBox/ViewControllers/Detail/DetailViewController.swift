@@ -26,6 +26,8 @@ final class DetailViewController: BaseScrollViewController {
         }
     }
     
+    var upstreamValueChange : (()->Void)?
+    
     let firstViewHeight : CGFloat = UIScreen.main.bounds.width * (2 / 3)
     
     let posterWidth = ( UIScreen.main.bounds.width - ( 3 * 16) * 2 ) / 3
@@ -134,7 +136,7 @@ final class DetailViewController: BaseScrollViewController {
         return stackView
     }()
     
-    //MARK: View Controller LifeCycle
+    //MARK: ViewController LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
         backDropScrollView.delegate = self
@@ -273,7 +275,7 @@ extension DetailViewController: IncludingLike {
         } else {
             ApplicationUserData.likedIdArray.append(id)
         }
-        
+        upstreamValueChange?()
         showLikeStatus(id: id)
     }
     

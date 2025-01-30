@@ -33,6 +33,7 @@ final class SearchViewController: BaseViewController {
         }
     }
     
+    //MARK: View Components
     let searchBar : UISearchBar = {
         let searchBar = UISearchBar()
         searchBar.barTintColor = AppColor.mainBackground.inUIColorFormat
@@ -67,6 +68,8 @@ final class SearchViewController: BaseViewController {
         return uiView
     }()
     
+    
+    //MARK: ViewController LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -128,6 +131,7 @@ final class SearchViewController: BaseViewController {
     }
 }
 
+//MARK: TableView Protocol
 extension SearchViewController : UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return data.count
@@ -145,6 +149,20 @@ extension SearchViewController : UITableViewDelegate, UITableViewDataSource {
         let imageHeight: CGFloat = ( UIScreen.main.bounds.width / 5 ) * 1.1
         return imageHeight + 16 * 2
     }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let movie = data[indexPath.row]
+        let destinationVC = DetailViewController()
+        
+        //upStreamValueChange is for reflecting like-status change in DetailVC to SearchVC's tableView-row
+        destinationVC.upstreamValueChange = {
+            tableView.reloadRows(at: [indexPath], with: .none)
+        }
+        
+        destinationVC.bringDetailData(data: movie)
+    
+        navigationController?.pushViewController(destinationVC, animated: true)
+    }
 }
 
 extension SearchViewController : UITableViewDataSourcePrefetching {
@@ -160,6 +178,7 @@ extension SearchViewController : UITableViewDataSourcePrefetching {
     }
 }
 
+//MARK: SearchBarDelegate Protocol
 extension SearchViewController : UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         guard let keyword = searchBar.text else { return }
@@ -175,6 +194,7 @@ extension SearchViewController : UISearchBarDelegate {
     }
 }
 
+//MARK: Actions
 extension SearchViewController {
     func executeSearchEvent(queryString: String) {
         
