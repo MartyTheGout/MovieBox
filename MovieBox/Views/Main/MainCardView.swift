@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SnapKit
 
 class MainCardView: BaseView {
     
@@ -65,8 +66,6 @@ class MainCardView: BaseView {
                 .font: UIFont.systemFont(ofSize: 16, weight: .bold)
             ])
     
-//        var colorinfo =AppColor.tintBlue.inUIColorFormat
-//        colorinfo.withAlphaComponent(0.5)
         button.backgroundColor = AppColor.tintBlue.inUIColorFormat.withAlphaComponent(0.5)
         button.setAttributedTitle(attributedString, for: .normal)
         

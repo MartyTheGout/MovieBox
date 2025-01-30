@@ -43,7 +43,6 @@ class BlueBorderButton: UIButton {
         
         self.setAttributedTitle(attributedStringForDisabled, for: .disabled)
         
-        
         getBlueBoldBorder(view: self)
     }
 }
