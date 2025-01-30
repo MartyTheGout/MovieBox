@@ -17,7 +17,7 @@ final class DetailViewController: BaseScrollViewController {
         }
     }
     
-    var likeButton: UIButton = UIButton() // is it necessary?
+    var likeButton: UIButton = UIButton() //TODO: Developing protocol including the usecase that like-button is located in navigation bar as right bar button.
     
     var backDropImages : [UIImageView] = []
     var posterImages: [UIImageView] = []
@@ -54,7 +54,7 @@ final class DetailViewController: BaseScrollViewController {
         let stackView = UIStackView()
         stackView.axis = .horizontal
         stackView.distribution = .equalSpacing
-        stackView.spacing = 4
+        stackView.spacing = 8
         return stackView
     }()
     
@@ -125,9 +125,6 @@ final class DetailViewController: BaseScrollViewController {
         }
         
         backDropScrollView.addSubview(backDropContentView)
-        
-        configureMovieInfoStack()
-        
         posterScrollView.addSubview(posterContentView)
     }
     
@@ -154,13 +151,13 @@ final class DetailViewController: BaseScrollViewController {
         }
         
         synopsisTitleLabel.snp.makeConstraints {
-            $0.top.equalTo(movieInfoStack.snp.bottom).offset(8)
+            $0.top.equalTo(movieInfoStack.snp.bottom).offset(24)
             $0.leading.equalTo(contentView).offset(16)
         }
         
         synopsisButton.snp.makeConstraints {
-            $0.top.equalTo(movieInfoStack.snp.bottom).offset(8)
-            $0.trailing.equalTo(contentView).offset(16)
+            $0.top.equalTo(movieInfoStack.snp.bottom).offset(24)
+            $0.trailing.equalTo(contentView).offset(-16)
         }
         
         synopsisContentLabel.snp.makeConstraints {
@@ -196,7 +193,7 @@ final class DetailViewController: BaseScrollViewController {
         imagesInOrder.enumerated().forEach { index, image in
             let contentLabel = UILabel()
             
-            let imageAttachment = NSTextAttachment(image: image.withTintColor(AppColor.cardBackground.inUIColorFormat))
+            let imageAttachment = NSTextAttachment(image: image.withTintColor(AppColor.subBackground.inUIColorFormat))
             let mutableString = NSMutableAttributedString(string: "")
             mutableString.append(NSAttributedString(attachment: imageAttachment))
             mutableString.append(NSAttributedString(string: " "))
@@ -207,7 +204,7 @@ final class DetailViewController: BaseScrollViewController {
             
             if index != imagesInOrder.count - 1 {
                 let barLabel = UILabel()
-                barLabel.attributedText = NSAttributedString(string: "|", attributes: [.foregroundColor : AppColor.cardBackground.inUIColorFormat])
+                barLabel.attributedText = NSAttributedString(string: "|", attributes: [.foregroundColor : AppColor.subBackground.inUIColorFormat])
                 movieInfoStack.addArrangedSubview(barLabel)
             }
         }
@@ -249,18 +246,30 @@ extension DetailViewController: UIScrollViewDelegate {
 }
 
 extension DetailViewController {
-    // 값을 동적으로 할당하고, CollectionView 와 같이 자동으로 데이터 갱신을 반영해줄수 없는 경우라면, 데이터의 갱신 => 뷰계층 구조 => 레이아웃 변경사항을 모두 수동으로 반영해주어야한다.
+    /**
+    This function **dynamically** bring datasource for views, including 5 backdrop images, inifite poster images, details about movie.
+            
+    The point of this function is that, since the composition of this view is mainly affected by scrollview, which has no automatic data-reload functionality,  **not only the data, but also the layout, hierarchy of the view,  should be modified**
+     
+     So the overflow of this function is as below.
+     data update with given one > data fetching > (if required) Add up the view in the view heirarchy  > (if required) Add up layout constraints
+     */
     func bringDetailData(data: Movie) {
         self.movieId = data.id
         self.movieName = data.title
         
         let genreIDs: String = (data.genreIDS?.prefix(2).reduce("", { result, element in
             guard let genre = Genre(rawValue: element) else {return result}
+            
+            if result != "" {
+                return result + ", " + genre.koreanName
+            }
+            
             return result + genre.koreanName
         }))!
             
-        let infoStack: [String] = [data.releaseDate ?? "", "\(data.voteAverage ?? 0.0)", genreIDs ]
-        
+        let infoStack: [String] = [data.releaseDate ?? "", "\(data.voteAverage ?? 0.0)", genreIDs]
+        configureMovieInfoStack()
         
         movieInfoStack.subviews.enumerated().forEach { (index, label)  in
             guard let label = label as? UILabel else {
@@ -268,17 +277,21 @@ extension DetailViewController {
                 return }
             
             if index % 2 == 0 {
-                print("movieInfoStack \(index) dstarted")
                 let previousAttributeString = label.attributedText?.copy() as? NSAttributedString
                 
                 let mutableString = NSMutableAttributedString(string: "")
                 mutableString.append(previousAttributeString!)
-                mutableString.append(NSAttributedString(string: infoStack[index/2], attributes: [.foregroundColor : AppColor.mainInfoDeliver.inUIColorFormat]))
+                mutableString.append(NSAttributedString(string: infoStack[index/2],
+                                                        attributes: [
+                                                            .foregroundColor : AppColor.subBackground.inUIColorFormat,
+                                                            .font : UIFont.systemFont(ofSize: 15)
+                                                        ]))
                 
                 label.attributedText = mutableString
-                print("movieInfoStack \(index) done")
             }
         }
+        
+        synopsisContentLabel.text = data.overview
         
         NetworkManager.shared.callRequest(apiKind: .image(movieId: data.id)) { (imageResponse: ImageResponse) -> Void in
             let backdrops = imageResponse.backdrops.prefix(5)
