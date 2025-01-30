@@ -7,12 +7,6 @@
 
 import UIKit
 
-protocol DrawingEssentials {
-    func configureViewHierarchy()
-    func configureViewLayout()
-    func configureViewDetails()
-}
-
 class BaseView: UIView, DrawingEssentials {
     override init(frame: CGRect) {
         super.init(frame: .zero)
