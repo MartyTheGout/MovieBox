@@ -17,16 +17,22 @@ final class DetailViewController: BaseScrollViewController {
         }
     }
     
-    var likeButton: UIButton = UIButton() //TODO: Developing protocol including the usecase that like-button is located in navigation bar as right bar button.
+    //TODO: Developing protocol including the usecase that like-button is located in navigation bar as right bar button.
+    var likeButton: UIButton = UIButton()
     
-    var backDropImages : [UIImageView] = []
-    var posterImages: [UIImageView] = []
+    var casts : [Cast] = [] {
+        didSet {
+            castCollection.reloadData()
+        }
+    }
     
     let firstViewHeight : CGFloat = UIScreen.main.bounds.width * (2 / 3)
     
     let posterWidth = ( UIScreen.main.bounds.width - ( 3 * 16) * 2 ) / 3
     lazy var posterHeight = posterWidth * (1.5)
     
+    
+    //MARK: View Components
     let backDropScrollView = {
         let scrollView = UIScrollView()
         scrollView.isScrollEnabled = true
@@ -81,6 +87,30 @@ final class DetailViewController: BaseScrollViewController {
         return label
     }()
     
+    let castLabel : UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 17, weight: .bold)
+        label.textColor = AppColor.mainInfoDeliver.inUIColorFormat
+        label.text = "Cast"
+        return label
+    }()
+    
+    let castCollection : UICollectionView = {
+        let flowLayout = LeadingAlignedFlowLayout()
+        flowLayout.scrollDirection = .horizontal
+        
+        let width: CGFloat = (UIScreen.main.bounds.width - (24 * 3)) / 2
+        let height: CGFloat = 58 // image height : 50 + top/bottom inset 8's
+        
+        flowLayout.minimumInteritemSpacing = 4
+        flowLayout.minimumLineSpacing = 4
+
+        flowLayout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
+        
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: flowLayout)
+        return collectionView
+    }()
+    
     let posterLable: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 17, weight: .bold)
@@ -104,9 +134,14 @@ final class DetailViewController: BaseScrollViewController {
         return stackView
     }()
     
+    //MARK: View Controller LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
         backDropScrollView.delegate = self
+        
+        castCollection.delegate = self
+        castCollection.dataSource = self
+        castCollection.register(CastCollectionViewCell.self, forCellWithReuseIdentifier: CastCollectionViewCell.id)
     }
     
     override func setInitialValue() {
@@ -120,7 +155,7 @@ final class DetailViewController: BaseScrollViewController {
     }
     
     override func configureViewHierarchy() {
-        [backDropScrollView, pageControl, movieInfoStack,synopsisTitleLabel, synopsisButton, synopsisContentLabel, posterLable, posterScrollView].forEach {
+        [backDropScrollView, pageControl, movieInfoStack,synopsisTitleLabel, synopsisButton, synopsisContentLabel,castLabel, castCollection, posterLable, posterScrollView].forEach {
             contentView.addSubview($0)
         }
         
@@ -165,19 +200,30 @@ final class DetailViewController: BaseScrollViewController {
             $0.top.equalTo(synopsisTitleLabel.snp.bottom).offset(16)
         }
         
-        posterLable.snp.makeConstraints {
-            $0.top.equalTo(synopsisContentLabel.snp.bottom).offset(16)
+        castLabel.snp.makeConstraints {
+            $0.top.equalTo(synopsisContentLabel.snp.bottom).offset(24)
             $0.leading.equalTo(contentView).offset(16)
         }
-
+        
+        castCollection.snp.makeConstraints {
+            $0.top.equalTo(castLabel.snp.bottom).offset(8)
+            $0.horizontalEdges.equalTo(contentView).inset(8)
+            $0.height.equalTo(125) // precise height = 120 + required buffer for estimated size
+        }
+        
+        posterLable.snp.makeConstraints {
+            $0.top.equalTo(castCollection.snp.bottom).offset(16)
+            $0.leading.equalTo(contentView).offset(16)
+        }
+        
         posterScrollView.snp.makeConstraints {
             $0.top.equalTo(posterLable.snp.bottom).offset(16)
             $0.horizontalEdges.equalTo(contentView)
             $0.height.equalTo(posterHeight)
         }
-
+        
         posterContentView.snp.makeConstraints {
-            $0.horizontalEdges.equalTo(posterScrollView)
+            $0.horizontalEdges.equalTo(posterScrollView).inset(16)
             $0.height.equalTo(posterScrollView)
         }
     }
@@ -186,6 +232,7 @@ final class DetailViewController: BaseScrollViewController {
         guard let movieId else { return }
         showLikeStatus(id: movieId)
         synopsisButton.addTarget(self, action: #selector(toggleSynosisDisplayOption), for: .touchUpInside)
+        castCollection.backgroundColor = AppColor.mainBackground.inUIColorFormat
     }
     
     func configureMovieInfoStack () {
@@ -212,6 +259,8 @@ final class DetailViewController: BaseScrollViewController {
     }
 }
 
+
+//MARK: IncludingLike Protocol
 extension DetailViewController: IncludingLike {
     @objc func updateLikeStatus() {
         guard let id = movieId else {
@@ -234,6 +283,7 @@ extension DetailViewController: IncludingLike {
     }
 }
 
+//MARK: ScrollDelegate Protocol
 extension DetailViewController: UIScrollViewDelegate {
     
     /**
@@ -246,11 +296,29 @@ extension DetailViewController: UIScrollViewDelegate {
     }
 }
 
+//MARK: CollectionDelegate/DataSource Protocol
+extension DetailViewController: UICollectionViewDelegate, UICollectionViewDataSource {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        casts.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CastCollectionViewCell.id, for: indexPath) as? CastCollectionViewCell {
+            cell.fillUpData(with: casts[indexPath.item])
+            
+            return cell
+        }
+        
+        return UICollectionViewCell()
+    }
+}
+
+//MARK: Actions
 extension DetailViewController {
     /**
-    This function **dynamically** bring datasource for views, including 5 backdrop images, inifite poster images, details about movie.
-            
-    The point of this function is that, since the composition of this view is mainly affected by scrollview, which has no automatic data-reload functionality,  **not only the data, but also the layout, hierarchy of the view,  should be modified**
+     This function **dynamically** bring datasource for views, including 5 backdrop images, inifite poster images, details about movie.
+     
+     The point of this function is that, since the composition of this view is mainly affected by scrollview, which has no automatic data-reload functionality,  **not only the data, but also the layout, hierarchy of the view,  should be modified**
      
      So the overflow of this function is as below.
      data update with given one > data fetching > (if required) Add up the view in the view heirarchy  > (if required) Add up layout constraints
@@ -268,7 +336,7 @@ extension DetailViewController {
             
             return result + genre.koreanName
         }))!
-            
+        
         let infoStack: [String] = [data.releaseDate ?? "", "\(data.voteAverage ?? 0.0)", genreIDs]
         configureMovieInfoStack()
         
@@ -297,7 +365,7 @@ extension DetailViewController {
         NetworkManager.shared.callRequest(apiKind: .image(movieId: data.id)) { (imageResponse: ImageResponse) -> Void in
             let backdrops = imageResponse.backdrops.prefix(5)
             let posters = imageResponse.posters
-        
+            
             backdrops.forEach {
                 let imageURL = Datasource.baseImageURL.rawValue + $0.filePath
                 let imageView = UIImageView()
@@ -305,7 +373,6 @@ extension DetailViewController {
                 imageView.clipsToBounds = true
                 imageView.contentMode = .scaleAspectFill
                 
-                self.backDropImages.append(imageView)
                 self.backDropContentView.addSubview(imageView)
             }
             
@@ -325,7 +392,7 @@ extension DetailViewController {
             self.backDropContentView.snp.makeConstraints {
                 $0.trailing.equalTo(horizontalCoordinateBase)
             }
-
+            
             posters.forEach {
                 let imageURL = Datasource.baseImageURL.rawValue + $0.filePath
                 let imageView = UIImageView()
@@ -334,7 +401,6 @@ extension DetailViewController {
                 imageView.contentMode = .scaleAspectFill
                 imageView.contentMode = .scaleToFill
                 
-                self.posterImages.append(imageView)
                 self.posterContentView.addArrangedSubview(imageView)
             }
             
@@ -344,9 +410,17 @@ extension DetailViewController {
                     $0.height.equalTo(self.posterHeight)
                 }
             }
+            
         } failureHandler: { afError, httpResponseError in
             dump(afError)
             dump(httpResponseError.description)
+        }
+        
+        NetworkManager.shared.callRequest(apiKind: .credit(movieId: data.id)) { (response: CreditResponse )-> Void in
+            self.casts = response.cast
+        } failureHandler : { afError, httpResponseError in
+            dump(afError)
+            dump(httpResponseError)
         }
     }
     
@@ -356,7 +430,7 @@ extension DetailViewController {
         
         if text.lowercased() == "more" {
             synopsisContentLabel.numberOfLines = 0
-
+            
             let attributedTitle = NSAttributedString(string: "Hide", attributes: [.foregroundColor : AppColor.tintBlue.inUIColorFormat])
             synopsisButton.setAttributedTitle(attributedTitle, for: .normal)
             
@@ -368,3 +442,4 @@ extension DetailViewController {
         }
     }
 }
+

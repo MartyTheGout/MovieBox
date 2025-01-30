@@ -104,7 +104,7 @@ struct MovieImage: Codable {
 }
 
 struct CreditResponse: Codable {
-    let id : String
+    let id : Int
     let cast : [Cast]
 }
 
