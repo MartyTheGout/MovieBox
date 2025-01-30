@@ -14,15 +14,7 @@ struct UserDefault<T> {
     
     var wrappedValue: T {
         get {
-            
             UserDefaults.standard.object(forKey: self.key) as? T ?? defaultValue
-            
-            //TODO: not sure the Int array cant be set/get with the existing function
-//            if T.self is Array<Any>.Type {
-//                UserDefaults.standard.array(forKey: self.key) as? T ?? defaultValue
-//            } else {
-//                UserDefaults.standard.object(forKey: self.key) as? T ?? defaultValue
-//            }
         }
         set {
             UserDefaults.standard.set(newValue, forKey: self.key)

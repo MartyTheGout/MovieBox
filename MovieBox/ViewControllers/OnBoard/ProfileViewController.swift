@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ProfileViewController: BaseViewController {
+final class ProfileViewController: BaseViewController {
     
     var userData: Int = {
         let userData = ApplicationUserData.profileNumber

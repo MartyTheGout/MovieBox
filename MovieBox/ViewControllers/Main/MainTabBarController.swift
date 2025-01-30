@@ -7,7 +7,7 @@
 
 import UIKit
 
-class MainTabBarController: UITabBarController {
+final class MainTabBarController: UITabBarController {
     
     let selectedColor = AppColor.mainInfoDeliver.inUIColorFormat
     let unselectedColor = AppColor.subInfoDeliver.inUIColorFormat
@@ -20,8 +20,7 @@ class MainTabBarController: UITabBarController {
         configureBarAppearance()
     }
     
-    func configureViewControllers() {
-        
+    private func configureViewControllers() {
         let mainViewController = MainViewController()
         let mainVCSymbol = AppSFSymbol.popcorn.image.withTintColor(unselectedColor)
         let mainVCSymbolSelected = AppSFSymbol.popcorn.image.withTintColor(selectedColor)

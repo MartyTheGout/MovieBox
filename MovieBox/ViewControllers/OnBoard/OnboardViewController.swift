@@ -8,8 +8,7 @@
 import UIKit
 import SnapKit
 
-class OnboardViewController: BaseViewController {
-
+final class OnboardViewController: BaseViewController {
     let imageView : UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(named: "onboarding")

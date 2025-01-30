@@ -7,7 +7,7 @@
 
 import UIKit
 
-class GenreInfoView: BaseView {
+final class GenreInfoView: BaseView {
     
     let label = {
         let label = UILabel()

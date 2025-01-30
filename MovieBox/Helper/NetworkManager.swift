@@ -52,7 +52,6 @@ enum HttpResponseError : Error {
 }
 
 enum MoviewRequest {
-    
     case trending
     case search(query: String, page: Int)
     case credit(movieId: Int)
@@ -61,7 +60,6 @@ enum MoviewRequest {
     var authorizationHeader: HTTPHeaders {
         return ["Authorization": "Bearer \(APIKeys.accessKey.rawValue)"]
     }
-    
     
     var method: HTTPMethod { .get }
     

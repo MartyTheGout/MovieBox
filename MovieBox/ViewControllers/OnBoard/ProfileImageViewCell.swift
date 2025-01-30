@@ -7,14 +7,12 @@
 
 import UIKit
 
-class ProfileImageViewCell: BaseCollectionViewCell {
+final class ProfileImageViewCell: BaseCollectionViewCell {
     
     static var id : String {
         String(describing: self)
     }
-    
-    var locationAt: Int?
-    
+
     var isChosen = false {
         didSet {
             if isChosen {

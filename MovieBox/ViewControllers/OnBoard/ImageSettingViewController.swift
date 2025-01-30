@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ImageSettingViewController : BaseViewController {
+final class ImageSettingViewController : BaseViewController {
         
     var userData : Int {
         didSet {
