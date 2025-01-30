@@ -102,3 +102,19 @@ struct MovieImage: Codable {
         case filePath = "file_path"
     }
 }
+
+struct CreditResponse: Codable {
+    let id : String
+    let cast : [Cast]
+}
+
+struct Cast : Codable {
+    let name : String?
+    let character : String?
+    let profilePath: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case name, character
+        case profilePath = "profile_path"
+    }
+}

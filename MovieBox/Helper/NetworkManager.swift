@@ -55,7 +55,7 @@ enum MoviewRequest {
     
     case trending
     case search(query: String, page: Int)
-    case credit
+    case credit(movieId: Int)
     case image(movieId: Int)
     
     var authorizationHeader: HTTPHeaders {
@@ -72,7 +72,7 @@ enum MoviewRequest {
         switch self {
         case .trending: return URL(string: baseURL + "\(currentAPIVersion)/"+"trending/movie/day?language=ko-KR&page=1" )!
         case .search(let query, let page): return URL(string: baseURL + "\(currentAPIVersion)/"+"search/movie?query=\(query)&include_adult=false&language=ko-KR&page=\(page)" )!
-        case .credit: return URL(string: baseURL + "")!
+        case .credit(let movieId): return URL(string: baseURL + "\(currentAPIVersion)/"+"/movie/\(movieId)/credits?language=ko-KR")!
         case .image(let movieId) : return URL(string: baseURL + "\(currentAPIVersion)/"+"/movie/\(movieId)/images")!
         }
     }
