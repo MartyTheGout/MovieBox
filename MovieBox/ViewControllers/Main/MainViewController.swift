@@ -191,6 +191,7 @@ final class MainViewController: BaseViewController {
             collectionView.reloadData()
         }
         mainCard.refreshViewData()
+        view.backgroundColor = AppColor.mainBackground.inUIColorFormat
     }
     
     private func clearAndRefetchRecentSearch() {
@@ -224,6 +225,11 @@ final class MainViewController: BaseViewController {
         super.viewDidLayoutSubviews()
         
         mainCard.layer.cornerRadius = 10
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        view.backgroundColor = AppColor.cardBackground.inUIColorFormat
     }
     
     private func toggleNoResultLabelState(){
