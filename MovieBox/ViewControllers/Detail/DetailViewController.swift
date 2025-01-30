@@ -185,6 +185,7 @@ final class DetailViewController: BaseScrollViewController {
     override func configureViewDetails() {
         guard let movieId else { return }
         showLikeStatus(id: movieId)
+        synopsisButton.addTarget(self, action: #selector(toggleSynosisDisplayOption), for: .touchUpInside)
     }
     
     func configureMovieInfoStack () {
@@ -346,6 +347,24 @@ extension DetailViewController {
         } failureHandler: { afError, httpResponseError in
             dump(afError)
             dump(httpResponseError.description)
+        }
+    }
+    
+    @objc func toggleSynosisDisplayOption(_ sender: UIButton) {
+        
+        guard let text = sender.titleLabel?.text else { return }
+        
+        if text.lowercased() == "more" {
+            synopsisContentLabel.numberOfLines = 0
+
+            let attributedTitle = NSAttributedString(string: "Hide", attributes: [.foregroundColor : AppColor.tintBlue.inUIColorFormat])
+            synopsisButton.setAttributedTitle(attributedTitle, for: .normal)
+            
+        } else {
+            synopsisContentLabel.numberOfLines = 3
+            
+            let attributedTitle = NSAttributedString(string: "More", attributes: [.foregroundColor : AppColor.tintBlue.inUIColorFormat])
+            synopsisButton.setAttributedTitle(attributedTitle, for: .normal)
         }
     }
 }
