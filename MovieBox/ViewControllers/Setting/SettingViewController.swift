@@ -89,6 +89,9 @@ extension SettingViewController {
     func showAlert(){
         let alertController = UIAlertController(title: "탈퇴하기", message: "탈퇴를 하면 모든 데이터가 초기화됩니다. 탈퇴 하시겠습니까?", preferredStyle: .alert)
         let withdrawAction = UIAlertAction(title: "확인", style: .destructive) { (_) in
+            
+            ApplicationUserData.withdraw()
+            
             let destinationVC = OnboardViewController()
             guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene, let window = windowScene.windows.first else { return }
             window.rootViewController = destinationVC

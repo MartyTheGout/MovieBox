@@ -134,7 +134,8 @@ extension ProfileViewController {
         guard let nickname = textFieldView.textField.text else { return }
         ApplicationUserData.nickname = nickname
         ApplicationUserData.profileNumber = userData
-        ApplicationUserData.firstLauchState.toggle()
+        ApplicationUserData.registrationDate = Date()
+        ApplicationUserData.firstLauchState = false
      
         // for the case of re-join the app
         if ApplicationUserData.withdrawalState {

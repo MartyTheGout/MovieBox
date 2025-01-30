@@ -53,14 +53,6 @@ enum ApplicationUserData {
     @UserDefault(key: "RECENTLY_USED_KEYWORD", defaultValue: [])
     static var recentlyUsedKeyword: [String]
     
-    static func changeLauchState() {
-        firstLauchState.toggle()
-    }
-    
-    static func changeWithdrawlState() {
-        withdrawalState.toggle()
-    }
-    
     static func withdraw() {
         withdrawalState = true
     }
