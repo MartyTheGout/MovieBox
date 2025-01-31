@@ -17,6 +17,7 @@ class MainCardView: BaseView {
         let imageView = UIImageView()
         imageView.image = UIImage(named: "profile_\(profileImageAsset)")
         imageView.contentMode = .scaleAspectFill
+        imageView.backgroundColor = AppColor.mainBackground.inUIColorFormat
         imageView.clipsToBounds = true
         getBlueBoldBorder(view: imageView) // TODO: check , check value capture
         return imageView

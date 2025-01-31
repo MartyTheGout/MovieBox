@@ -32,6 +32,7 @@ final class ProfileViewController: BaseViewController {
         }
     }
     
+    //MARK: View Components
     lazy var selectedProfileView = SelectedProfileView(userData: self.userData)
     
     let textFieldView = NameTextFieldView()
@@ -49,6 +50,7 @@ final class ProfileViewController: BaseViewController {
         }
     }
     
+    //MARK: View Controller Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         textFieldView.textField.delegate = self
@@ -119,8 +121,15 @@ final class ProfileViewController: BaseViewController {
         super.viewDidLayoutSubviews()
         completionButton.layer.cornerRadius = completionButton.frame.height / 2
     }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        //For converting back to normal view-background-color
+        delegate?.upstreamAction(with: AppColor.mainBackground.inUIColorFormat)
+    }
 }
 
+//MARK: TextField Protocol
 extension ProfileViewController: UITextFieldDelegate {
     
     func textFieldDidChangeSelection(_ textField: UITextField) {

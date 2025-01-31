@@ -51,8 +51,10 @@ class SettingViewController: BaseViewController {
     
     override func configureViewDetails() {
         tableView.backgroundColor = AppColor.mainBackground.inUIColorFormat
+        tableView.separatorStyle = .singleLine
         tableView.separatorColor = AppColor.cardBackground.inUIColorFormat
         tableView.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        
         
         mainCard.isUserInteractionEnabled = true
         let tapOnProfileCard = UITapGestureRecognizer(target: self, action: #selector(showProfileSheet))
@@ -98,6 +100,10 @@ extension SettingViewController: ReverseValueAssigning {
         if let _ = with as? Int {
             mainCard.refreshViewData()
         }
+        
+        if let _ = with as? UIColor {
+            view.backgroundColor = AppColor.mainBackground.inUIColorFormat
+        }
     }
 }
 
@@ -125,7 +131,12 @@ extension SettingViewController {
         destinationVC.delegate = self
         let navigationController = UINavigationController(rootViewController: destinationVC)
         navigationController.modalPresentationStyle = .pageSheet
-                
+        navigationController.sheetPresentationController?.prefersGrabberVisible = true // seems not working in the back background + light appearance
+        
+        UIView.animate(withDuration: 1.0) {
+            self.view.backgroundColor = AppColor.cardBackground.inUIColorFormat
+        }
+        
         present(UINavigationController(rootViewController: destinationVC), animated: true)
     }
 }

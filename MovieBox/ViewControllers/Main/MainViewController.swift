@@ -264,6 +264,11 @@ extension MainViewController: ReverseValueAssigning {
         if let _ = with as? Int {
             mainCard.refreshViewData()
         }
+        
+        if let _ = with as? UIColor {
+            view.backgroundColor = AppColor.mainBackground.inUIColorFormat
+        }
+        
     }
 }
 
@@ -293,6 +298,11 @@ extension MainViewController {
         destinationVC.delegate = self
         let navigationController = UINavigationController(rootViewController: destinationVC)
         navigationController.modalPresentationStyle = .pageSheet
+        navigationController.sheetPresentationController?.prefersGrabberVisible = true
+        
+        UIView.animate(withDuration: 1.0) {
+            self.view.backgroundColor = AppColor.cardBackground.inUIColorFormat
+        }
                 
         present(UINavigationController(rootViewController: destinationVC), animated: true)
     }
