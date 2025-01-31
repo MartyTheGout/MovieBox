@@ -17,6 +17,7 @@ class SettingViewController: BaseViewController {
         return tableView
     }()
     
+    //MARK: View Controller LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -52,6 +53,10 @@ class SettingViewController: BaseViewController {
         tableView.backgroundColor = AppColor.mainBackground.inUIColorFormat
         tableView.separatorColor = AppColor.cardBackground.inUIColorFormat
         tableView.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        
+        mainCard.isUserInteractionEnabled = true
+        let tapOnProfileCard = UITapGestureRecognizer(target: self, action: #selector(showProfileSheet))
+        mainCard.addGestureRecognizer(tapOnProfileCard)
     }
     
     override func viewDidLayoutSubviews() {
@@ -60,6 +65,7 @@ class SettingViewController: BaseViewController {
     }
 }
 
+//MARK: TableView Protocols
 extension SettingViewController : UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         titleList.count
@@ -85,6 +91,17 @@ extension SettingViewController : UITableViewDelegate, UITableViewDataSource {
     }
 }
 
+//MARK: ReverseValueAssigning Protocol
+extension SettingViewController: ReverseValueAssigning {
+    // for like button pressed from collectionviewcell
+    func upstreamAction<T>(with: T) {
+        if let _ = with as? Int {
+            mainCard.refreshViewData()
+        }
+    }
+}
+
+//MARK: Actions
 extension SettingViewController {
     func showAlert(){
         let alertController = UIAlertController(title: "탈퇴하기", message: "탈퇴를 하면 모든 데이터가 초기화됩니다. 탈퇴 하시겠습니까?", preferredStyle: .alert)
@@ -94,12 +111,21 @@ extension SettingViewController {
             
             let destinationVC = OnboardViewController()
             guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene, let window = windowScene.windows.first else { return }
-            window.rootViewController = destinationVC
+            window.rootViewController = UINavigationController(rootViewController: destinationVC)
             window.makeKeyAndVisible()
         }
         let cancelAction = UIAlertAction(title: "취소", style: .cancel)
         alertController.addAction(withdrawAction)
         alertController.addAction(cancelAction)
         present(alertController, animated: true)
+    }
+    
+    @objc func showProfileSheet() {
+        let destinationVC = ProfileViewController(isModalPresentation: true)
+        destinationVC.delegate = self
+        let navigationController = UINavigationController(rootViewController: destinationVC)
+        navigationController.modalPresentationStyle = .pageSheet
+                
+        present(UINavigationController(rootViewController: destinationVC), animated: true)
     }
 }
