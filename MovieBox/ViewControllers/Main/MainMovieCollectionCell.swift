@@ -63,7 +63,7 @@ final class MainMovieCollectionCell: BaseCollectionViewCell, IncludingLike {
     
     override func configureViewLayout() {
         imageView.snp.makeConstraints {
-            $0.top.equalTo(contentView)
+            $0.top.equalTo(contentView).offset(20) // TODO: mysterious.. part.
             $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(contentView.snp.width).multipliedBy(1.3)
         }
