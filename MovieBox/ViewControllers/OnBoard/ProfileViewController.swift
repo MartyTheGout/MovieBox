@@ -115,6 +115,9 @@ final class ProfileViewController: BaseViewController {
         
         completionButton.addTarget(self, action: #selector(registerNickname), for: .touchUpInside)
         selectedProfileView.button.addTarget(self, action: #selector(navigateToImageSelection), for: .touchUpInside)
+        
+        //If there is no input entered, initially button should be dis-enabled
+        completionButton.isEnabled = validation
     }
     
     override func viewDidLayoutSubviews() {
@@ -137,23 +140,27 @@ extension ProfileViewController: UITextFieldDelegate {
         guard let input = textField.text else { return }
         
         if input.contains(/[@|#|$|%]/) {
-            validationLabel.text = "닉네임는 @, #, $, %는 포  함할 수 없어요"
+            validationLabel.text = "닉네임는 @, #, $, % 는 포함할 수 없어요"
+            validationLabel.textColor = .red
             validation = false
             return
         }
         
         if input.contains(/\d/) {
             validationLabel.text = "닉네임에 숫자는 포함할 수 없어요."
+            validationLabel.textColor = .red
             validation = false
             return
         }
         
         if input.count >= 2 && input.count < 10 {
             validationLabel.text = "사용할 수 있는 닉네임이에요."
+            validationLabel.textColor = AppColor.tintBlue.inUIColorFormat
             validation = true
             return
         } else {
-            validationLabel.text = "닉2글자 이상 10글자 미만으로 설정해주세요."
+            validationLabel.text = "2글자 이상 10글자 미만으로 설정해주세요."
+            validationLabel.textColor = .red
             validation = false
             return
         }

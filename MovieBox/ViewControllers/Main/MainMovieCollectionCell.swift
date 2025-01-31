@@ -63,9 +63,9 @@ final class MainMovieCollectionCell: BaseCollectionViewCell, IncludingLike {
     
     override func configureViewLayout() {
         imageView.snp.makeConstraints {
-            $0.top.equalTo(contentView).offset(20) // TODO: mysterious.. part.
-            $0.horizontalEdges.equalToSuperview()
+            $0.top.equalTo(contentView.snp.top)
             $0.height.equalTo(contentView.snp.width).multipliedBy(1.3)
+            $0.horizontalEdges.equalToSuperview()
         }
         
         stackView.snp.makeConstraints {
@@ -123,7 +123,6 @@ final class MainMovieCollectionCell: BaseCollectionViewCell, IncludingLike {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        
-        imageView.layer.cornerRadius = 10 // TODO: 하단 이미지에만 cornerRaius가 적용된 것처럼 보인다. 
+        imageView.layer.cornerRadius = 10
     }
 }

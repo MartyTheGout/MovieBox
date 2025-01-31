@@ -90,7 +90,7 @@ final class MainViewController: BaseViewController {
         flowLayout.minimumInteritemSpacing = 16
         
         let itemWidth : CGFloat = UIScreen.main.bounds.width * 0.55
-        let itemHeight : CGFloat = itemWidth * 2
+        let itemHeight : CGFloat = itemWidth * 1.7
         
         flowLayout.itemSize = CGSize(width: itemWidth, height: itemHeight)
         
@@ -144,12 +144,13 @@ final class MainViewController: BaseViewController {
         buttonScrollView.snp.makeConstraints{
             $0.top.equalTo(searchHeaderView.snp.bottom).offset(10)
             $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
+            $0.height.equalTo(35) // statically set, not to have dynamic layout displacement in under-layouts
         }
         
         noresultLabel.snp.makeConstraints {
             $0.top.equalTo(searchHeaderView.snp.bottom).offset(16)
             $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
-            $0.height.equalTo(buttonScrollView.snp.height) //TODO: 버튼이 사라졌을 때에, 다른뷰에는 변화가 없는 것처럼 하고싶다.
+            $0.height.equalTo(buttonScrollView.snp.height)
         }
         
         buttonContainer.snp.makeConstraints {
@@ -159,7 +160,6 @@ final class MainViewController: BaseViewController {
         
         secondTitleLabel.snp.makeConstraints {
             $0.top.equalTo(buttonScrollView.snp.bottom).offset(16)
-            $0.top.equalTo(noresultLabel.snp.bottom).offset(16)
             $0.leading.equalTo(view.safeAreaLayoutGuide).inset(16)
         }
         
@@ -200,6 +200,8 @@ final class MainViewController: BaseViewController {
         }
         recentlyUsedKeyword = ApplicationUserData.recentlyUsedKeyword
         
+        toggleNoResultLabelState()
+        
         recentlyUsedKeyword.enumerated().forEach { index, value in
             
             let button = CancellableButton(
@@ -208,12 +210,12 @@ final class MainViewController: BaseViewController {
                     self.navigateToSearchPageWith(value)
                 },
                 cancelAction: {
-                    guard let index = self.recentlyUsedKeyword.firstIndex(of: value) else {
+                    guard let index = ApplicationUserData.recentlyUsedKeyword.firstIndex(of: value) else {
                         print("There is no \(value) in recent keyword")
                         return
                     }
                     
-                    self.recentlyUsedKeyword.remove(at: index)
+                    ApplicationUserData.recentlyUsedKeyword.remove(at: index)
                     self.toggleNoResultLabelState()
                 }
             )
@@ -223,14 +225,12 @@ final class MainViewController: BaseViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        
         mainCard.layer.cornerRadius = 10
     }
     
     private func toggleNoResultLabelState(){
         noresultLabel.isHidden =  recentlyUsedKeyword.count == 0 ? false : true
     }
-
 }
 
 //MARK: Collection Protocol
