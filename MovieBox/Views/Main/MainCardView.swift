@@ -12,6 +12,7 @@ class MainCardView: BaseView {
     
     var profileImageAsset = ApplicationUserData.profileNumber
     
+    //MARK: View Components
     lazy var imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(named: "profile_\(profileImageAsset)")
@@ -72,6 +73,7 @@ class MainCardView: BaseView {
         return button
     }()
     
+    //MARK: View Controller Life Cycle
     override func configureViewHierarchy() {
         [imageView, verticalStack, chevron, likeInfoButton].forEach { addSubview($0) }
         [nicknameLabel, dateLabel].forEach { verticalStack.addArrangedSubview($0)}
@@ -106,20 +108,16 @@ class MainCardView: BaseView {
         dateLabel.text = convertDateToFormattedData(date: date)
     }
     
-    private func convertDateToFormattedData (date: Date) -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yy.MM.dd"
-        
-        return dateFormatter.string(from: date)
-    }
-    
     override func layoutSubviews() {
         super.layoutSubviews()
         
         imageView.layer.cornerRadius = imageView.frame.height / 2
         likeInfoButton.layer.cornerRadius = 10
     }
-    
+}
+
+//MARK: Actions
+extension MainCardView {
     func refreshViewData() {
         if nickname != ApplicationUserData.nickname {
             nickname = ApplicationUserData.nickname
@@ -133,7 +131,6 @@ class MainCardView: BaseView {
         
         if likeCount != ApplicationUserData.likedIdArray.count {
             likeCount = ApplicationUserData.likedIdArray.count
-            print(likeCount)
             
             let attributedString = NSAttributedString(
                 string: "\(likeCount)개의 무비박스 보관 중",
@@ -148,5 +145,12 @@ class MainCardView: BaseView {
             profileImageAsset = ApplicationUserData.profileNumber
             imageView.image = UIImage(named: "profile_\(profileImageAsset)")
         }
+    }
+    
+    private func convertDateToFormattedData (date: Date) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yy.MM.dd 가입"
+        
+        return dateFormatter.string(from: date)
     }
 }
