@@ -62,16 +62,34 @@ class CastCollectionViewCell: BaseCollectionViewCell {
         }
     }
     
+    override func configureViewDetails() {
+        print(#function)
+        imageView.layer.cornerRadius = imageView.frame.height / 2
+        imageView.clipsToBounds = true
+    }
+    
     func fillUpData(with cast : Cast) {
+        print(#function)
         let imageURL = URL(string: Datasource.baseImageURL.rawValue + (cast.profilePath ?? ""))
         imageView.kf.setImage(with: imageURL)
         
         realNameLabel.text = cast.name
         charactorNameLabel.text = cast.character
     }
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        imageView.layer.cornerRadius = imageView.frame.height / 2 
+
+    /**
+     Background of this function: All of the trials below were failed, Therefore It was required to put logic to modify cornerRadius on the last step, in drawing cycle
+    Since the imageView's size was set in the phase of viewDidLoad,
+     1) Tried to set cornerRadious at configureViewDetails
+     2) Tried to set cornerRadious at fillUpData, so that the cornerRadius can be changed right after the image was set
+     3) Tried to set cornerRadious at layoutSubViews
+     
+     with some try the order of function call was below, but didn't worked.
+     * configureViewDetails() -> fillUpData() -> layoutSubviews()
+     */
+    override func draw(_ rect: CGRect) {
+        super.draw(rect)
+        imageView.layer.cornerRadius = imageView.frame.height / 2
     }
+
 }
