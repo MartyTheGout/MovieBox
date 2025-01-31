@@ -7,9 +7,16 @@
 
 import UIKit
 
+protocol LikeButton {}
+
+extension UIButton: LikeButton {}
+extension UIBarButtonItem : LikeButton {}
+
 protocol IncludingLike {
     var movieId : Int? { get set }
-    var likeButton : UIButton { get set }
+    
+    associatedtype ButtonType: LikeButton
+    var likeButton : ButtonType { get set }
     
     func updateLikeStatus()
     func showLikeStatus(id: Int)

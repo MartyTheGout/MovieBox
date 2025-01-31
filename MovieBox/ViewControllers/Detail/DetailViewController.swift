@@ -17,8 +17,9 @@ final class DetailViewController: BaseScrollViewController {
         }
     }
     
-    //TODO: Developing protocol including the usecase that like-button is located in navigation bar as right bar button.
-    var likeButton: UIButton = UIButton()
+    lazy var likeButton: UIBarButtonItem = {
+        return UIBarButtonItem(image: AppSFSymbol.whiteHeart.image, style: .plain, target: self, action: #selector(updateLikeStatus))
+    }()
     
     var casts : [Cast] = [] {
         didSet {
@@ -153,7 +154,7 @@ final class DetailViewController: BaseScrollViewController {
     override func configureNavigationBar() {
         super.configureNavigationBar()
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: AppSFSymbol.whiteHeart.image, style: .plain, target: self, action: #selector(updateLikeStatus))
+        navigationItem.rightBarButtonItem = likeButton
     }
     
     override func configureViewHierarchy() {
