@@ -61,6 +61,11 @@ class SettingViewController: BaseViewController {
         mainCard.addGestureRecognizer(tapOnProfileCard)
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        mainCard.refreshViewData()
+    }
+    
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         mainCard.layer.cornerRadius = 10
