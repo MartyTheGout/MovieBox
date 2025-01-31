@@ -64,8 +64,12 @@ final class ImageSettingViewController : BaseViewController {
     }
     
     override func setInitialValue() {
-        navigationName = "프로필 이미지 설정"
-
+        if let _ = presentingViewController {
+            navigationName = "프로필 이미지 편집"
+        } else {
+            navigationName = "프로필 이미지 설정"
+        }
+        
         selectedStatusArray[userData] = true
     }
     
@@ -111,8 +115,7 @@ extension ImageSettingViewController : UICollectionViewDataSource, UICollectionV
             cell.setCellImage(locationAt: indexPath.item)
             cell.isChosen = selectedStatusArray[indexPath.item]
             
-            cell.contentView.isUserInteractionEnabled = false // MARK: 이것으로 버튼이 셀 클릭영역을 가리는 것을 방지할 수 있다.
-    
+            cell.contentView.isUserInteractionEnabled = false // This line of code can prevent button from coverting contentView's clickable area
             return cell
         }
         

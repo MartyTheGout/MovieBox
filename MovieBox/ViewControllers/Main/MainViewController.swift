@@ -70,7 +70,7 @@ final class MainViewController: BaseViewController {
         let stackView = UIStackView()
         stackView.axis = .horizontal
         stackView.distribution = .equalSpacing
-        stackView.spacing = 16
+        stackView.spacing = 8
         
         return stackView
     }()

@@ -58,7 +58,11 @@ final class ProfileViewController: BaseViewController {
     }
         
     override func setInitialValue() {
-        navigationName = "프로필 설정"
+        if let _ = presentingViewController {
+            navigationName = "프로필 편집"
+        } else {
+            navigationName = "프로필 설정"
+        }
     }
     
     override func configureNavigationBar() {

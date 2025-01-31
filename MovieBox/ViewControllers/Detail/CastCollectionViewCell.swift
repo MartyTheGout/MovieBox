@@ -63,13 +63,11 @@ class CastCollectionViewCell: BaseCollectionViewCell {
     }
     
     override func configureViewDetails() {
-        print(#function)
         imageView.layer.cornerRadius = imageView.frame.height / 2
         imageView.clipsToBounds = true
     }
     
     func fillUpData(with cast : Cast) {
-        print(#function)
         let imageURL = URL(string: Datasource.baseImageURL.rawValue + (cast.profilePath ?? ""))
         imageView.kf.setImage(with: imageURL)
         

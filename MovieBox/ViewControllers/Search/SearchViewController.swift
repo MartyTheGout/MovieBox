@@ -38,7 +38,7 @@ final class SearchViewController: BaseViewController {
         let searchBar = UISearchBar()
         searchBar.barTintColor = AppColor.mainBackground.inUIColorFormat
         searchBar.searchTextField.leftView?.tintColor = AppColor.subInfoDeliver.inUIColorFormat
-        searchBar.searchTextField.attributedPlaceholder = NSAttributedString(string: "찾고 싶은 영화를 검색해주세요.", attributes: [.foregroundColor: AppColor.subInfoDeliver.inUIColorFormat])
+        searchBar.searchTextField.attributedPlaceholder = NSAttributedString(string: "영화를 검색해보세요.", attributes: [.foregroundColor: AppColor.subInfoDeliver.inUIColorFormat])
         searchBar.searchTextField.textColor = AppColor.mainInfoDeliver.inUIColorFormat
         
         return searchBar
