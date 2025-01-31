@@ -12,6 +12,8 @@ final class ProfileViewController: BaseViewController {
     
     var isModalPresentation: Bool
     
+    var delegate : ReverseValueAssigning?
+    
     init (isModalPresentation: Bool = false) {
         self.isModalPresentation = isModalPresentation
         super.init(nibName: nil, bundle: nil)
@@ -191,6 +193,11 @@ extension ProfileViewController {
         guard let nickname = textFieldView.textField.text else { return }
         ApplicationUserData.nickname = nickname
         ApplicationUserData.profileNumber = userData
+        
+        //Update MainViewController's mainCard's Data
+        delegate?.upstreamAction(with: userData)
+        
+        dismiss(animated: true)
     }
 }
 

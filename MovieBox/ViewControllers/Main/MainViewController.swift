@@ -227,11 +227,6 @@ final class MainViewController: BaseViewController {
         mainCard.layer.cornerRadius = 10
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        view.backgroundColor = AppColor.cardBackground.inUIColorFormat
-    }
-    
     private func toggleNoResultLabelState(){
         noresultLabel.isHidden =  recentlyUsedKeyword.count == 0 ? false : true
     }
@@ -294,7 +289,8 @@ extension MainViewController {
     }
     
     @objc func showProfileSheet() {
-        let destinationVC = ProfileViewController()
+        let destinationVC = ProfileViewController(isModalPresentation: true)
+        destinationVC.delegate = self
         let navigationController = UINavigationController(rootViewController: destinationVC)
         navigationController.modalPresentationStyle = .pageSheet
                 
