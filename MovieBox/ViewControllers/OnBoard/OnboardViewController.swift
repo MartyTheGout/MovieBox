@@ -86,7 +86,6 @@ final class OnboardViewController: BaseViewController {
 
 //MARK: SubView's action
 extension OnboardViewController {
-    //TODO: slight lack in the middle of view transition animation
     @objc func navigateToMainView() {
         let destinationVC = ProfileViewController()
         navigationController?.pushViewController(destinationVC, animated: true)

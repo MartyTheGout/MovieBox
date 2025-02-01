@@ -54,7 +54,7 @@ final class ProfileViewController: BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         textFieldView.textField.delegate = self
-        textFieldView.textField.becomeFirstResponder() // 굉장히 oop스럽다. 은닉화는 아니지만, getonly 프로퍼티이며, 인스턴스 메소드를 통해서 값을 변경한다.
+        textFieldView.textField.becomeFirstResponder()
     }
         
     override func setInitialValue() {

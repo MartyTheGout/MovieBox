@@ -143,7 +143,6 @@ extension SearchTableViewCell: IncludingLike {
 extension SearchTableViewCell {
     func fillUpData(with data: Movie) {
         movieId = data.id
-        // TODO: Mysterious work for using this method, not working when locate the function in the end of this closure
         showLikeStatus(id: data.id)
         
         if let posterPath = data.posterPath, !posterPath.isEmpty {
@@ -154,6 +153,9 @@ extension SearchTableViewCell {
             }
         } else {
             mainImage.image = UIImage(systemName: "film")
+            mainImage.tintColor = AppColor.subBackground.inUIColorFormat
+            mainImage.contentMode = .scaleAspectFit
+            
             mainImage.stopSkeletonAnimation()
             mainImage.hideSkeleton()
             mainImage.layer.cornerRadius = 10
@@ -171,7 +173,7 @@ extension SearchTableViewCell {
         
         dateLabel.text = data.releaseDate
         
-        // genreStack의 서브뷰 초기화
+        // Initialization of genreStack's Subviews
         genreStack.subviews.forEach {
             $0.removeFromSuperview()
         }
@@ -182,7 +184,7 @@ extension SearchTableViewCell {
         
         for (index, genre) in genreIDS.enumerated() {
             
-            // Application Spec: 검색페이지에서 열람가능한 장르 정보는 2개까지이다.
+            // Application Spec: visible genre is up to 2 items.
             if index >= availableGenre { return }
             
             let genreInKorean = Genre(rawValue: genre)?.koreanName

@@ -23,7 +23,7 @@ struct UserDefault<T> {
 }
 
 enum ApplicationUserData {
-    @UserDefault(key: "FIRST_LAUCH_STATE", defaultValue: true) // 독립적으로 보이지만, 4가지의 경우의 수가 존재하지 않는다. ** 
+    @UserDefault(key: "FIRST_LAUCH_STATE", defaultValue: true) 
     static var firstLauchState: Bool
     
     @UserDefault(key: "WITHDRAWAL_STATE", defaultValue: false)

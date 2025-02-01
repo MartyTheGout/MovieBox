@@ -49,7 +49,7 @@ final class DetailViewController: BaseScrollViewController {
     let backDropContentView = UIView()
     
     lazy var pageControl: UIPageControl = {
-        let pageControl = UIPageControl() // frame required?
+        let pageControl = UIPageControl()
         
         pageControl.numberOfPages = 5
         pageControl.currentPage = 0

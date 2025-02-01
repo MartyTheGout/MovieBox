@@ -46,8 +46,6 @@ class BaseViewController: UIViewController, DrawingEssentials {
     
     // As a default action, set navigationTitle and make back-button only chevron
     func configureNavigationBar() {
-        
-        //TODO: setting text is on the side of item, but setting color is on the side of navigationbar
         navigationController?.navigationBar.titleTextAttributes = [
             .foregroundColor : AppColor.mainInfoDeliver.inUIColorFormat
         ]
@@ -56,10 +54,7 @@ class BaseViewController: UIViewController, DrawingEssentials {
             navigationItem.title = title
         }
         
-        //TODO: setting backButtonTitle didn't work. so did have to change the button it self.
-        //Why the button cannot have the changed string.
         navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
-        
     }
     func configureViewHierarchy() {}
     func configureViewLayout() {}
@@ -139,8 +134,6 @@ class BaseScrollViewController: UIViewController, DrawingEssentials {
     
     // As a default action, set navigationTitle and make back-button only chevron
     func configureNavigationBar() {
-        
-        //TODO: setting text is on the side of item, but setting color is on the side of navigationbar
         navigationController?.navigationBar.titleTextAttributes = [
             .foregroundColor : AppColor.mainInfoDeliver.inUIColorFormat
         ]
@@ -148,11 +141,8 @@ class BaseScrollViewController: UIViewController, DrawingEssentials {
         if let title = navigationName {
             navigationItem.title = title
         }
-        
-        //TODO: setting backButtonTitle didn't work. so did have to change the button it self.
-        //Why the button cannot have the changed string.
-        navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
-        
+
+        navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)        
     }
     
     func configureScrollToContentHierarchy() {
