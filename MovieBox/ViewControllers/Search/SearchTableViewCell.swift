@@ -73,6 +73,7 @@ final class SearchTableViewCell: BaseTableViewCell {
         titleLabel.snp.makeConstraints {
             $0.top.equalTo(contentView).offset(16)
             $0.leading.equalTo(mainImage.snp.trailing).offset(16)
+            $0.trailing.equalTo(contentView).offset(-8)
         }
         
         dateLabel.snp.makeConstraints{
@@ -145,6 +146,7 @@ extension SearchTableViewCell {
         } else {
             titleLabel.text = data.title
         }
+        titleLabel.numberOfLines = 2
         
         dateLabel.text = data.releaseDate
         
