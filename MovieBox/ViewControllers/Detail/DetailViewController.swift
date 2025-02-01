@@ -107,7 +107,7 @@ final class DetailViewController: BaseScrollViewController {
         
         flowLayout.minimumInteritemSpacing = 4
         flowLayout.minimumLineSpacing = 4
-
+        
         flowLayout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: flowLayout)
@@ -369,14 +369,25 @@ extension DetailViewController {
             let backdrops = imageResponse.backdrops.prefix(5)
             let posters = imageResponse.posters
             
-            backdrops.forEach {
-                let imageURL = Datasource.baseImageURL.rawValue + $0.filePath
+            if backdrops.isEmpty {
                 let imageView = UIImageView()
-                imageView.kf.setImage(with: URL(string: imageURL)!)
+                imageView.image = UIImage(systemName: "film")
                 imageView.clipsToBounds = true
-                imageView.contentMode = .scaleAspectFill
+                imageView.contentMode = .scaleAspectFit
+                imageView.tintColor = AppColor.subBackground.inUIColorFormat
                 
                 self.backDropContentView.addSubview(imageView)
+                
+            } else {
+                backdrops.forEach {
+                    let imageURL = Datasource.baseImageURL.rawValue + $0.filePath
+                    let imageView = UIImageView()
+                    imageView.kf.setImage(with: URL(string: imageURL)!)
+                    imageView.clipsToBounds = true
+                    imageView.contentMode = .scaleAspectFill
+                    
+                    self.backDropContentView.addSubview(imageView)
+                }
             }
             
             // initially number is set to 5, but in case of less than 5 => need to set to precise value
@@ -399,15 +410,25 @@ extension DetailViewController {
                 $0.trailing.equalTo(horizontalCoordinateBase)
             }
             
-            posters.forEach {
-                let imageURL = Datasource.baseImageURL.rawValue + $0.filePath
+            if posters.isEmpty {
                 let imageView = UIImageView()
-                imageView.kf.setImage(with: URL(string: imageURL)!)
+                imageView.image = UIImage(systemName: "film")
                 imageView.clipsToBounds = true
-                imageView.contentMode = .scaleAspectFill
-                imageView.contentMode = .scaleToFill
+                imageView.contentMode = .scaleAspectFit
+                imageView.tintColor = AppColor.subBackground.inUIColorFormat
                 
                 self.posterContentView.addArrangedSubview(imageView)
+                
+            } else {
+                posters.forEach {
+                    let imageURL = Datasource.baseImageURL.rawValue + $0.filePath
+                    let imageView = UIImageView()
+                    imageView.kf.setImage(with: URL(string: imageURL)!)
+                    imageView.clipsToBounds = true
+                    imageView.contentMode = .scaleToFill
+                    
+                    self.posterContentView.addArrangedSubview(imageView)
+                }
             }
             
             self.posterContentView.subviews.forEach { subView in
@@ -423,7 +444,12 @@ extension DetailViewController {
         }
         
         NetworkManager.shared.callRequest(apiKind: .credit(movieId: data.id)) { (response: CreditResponse )-> Void in
-            self.casts = response.cast
+            if response.cast.isEmpty {
+                let emptyCastRepresentative = Cast(name: "No Data", character: "-", profilePath: "")
+                self.casts = [emptyCastRepresentative]
+            } else {
+                self.casts = response.cast
+            }
         } failureHandler : { afError, httpResponseError in
             dump(afError)
             dump(httpResponseError)

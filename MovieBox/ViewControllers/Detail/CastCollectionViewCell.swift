@@ -68,8 +68,21 @@ class CastCollectionViewCell: BaseCollectionViewCell {
     }
     
     func fillUpData(with cast : Cast) {
-        let imageURL = URL(string: Datasource.baseImageURL.rawValue + (cast.profilePath ?? ""))
-        imageView.kf.setImage(with: imageURL)
+        
+        if cast.character == "-" {
+            imageView.image = UIImage(systemName: "person.circle")
+            imageView.contentMode = .scaleAspectFit
+            imageView.tintColor = AppColor.subBackground.inUIColorFormat
+        } else {
+            if let profilePath = cast.profilePath {
+                let imageURL = URL(string: Datasource.baseImageURL.rawValue + (profilePath))
+                imageView.kf.setImage(with: imageURL)
+            } else {
+                imageView.image = UIImage(systemName: "person.circle")
+                imageView.contentMode = .scaleAspectFit
+                imageView.tintColor = AppColor.subBackground.inUIColorFormat
+            }
+        }
         
         realNameLabel.text = cast.name
         charactorNameLabel.text = cast.character
