@@ -7,6 +7,7 @@
 
 import UIKit
 import SnapKit
+import SkeletonView
 
 final class MainViewController: BaseViewController {
     
@@ -17,6 +18,11 @@ final class MainViewController: BaseViewController {
     lazy var todayMovieList: [Movie] = [] {
         didSet {
             collectionView.reloadData()
+            
+            if !todayMovieList.isEmpty {
+                collectionView.stopSkeletonAnimation()
+                collectionView.hideSkeleton(reloadDataAfter: true)
+            }
         }
     }
     
@@ -105,6 +111,11 @@ final class MainViewController: BaseViewController {
         collectionView.dataSource = self
         collectionView.register(MainMovieCollectionCell.self, forCellWithReuseIdentifier: MainMovieCollectionCell.id)
         
+        collectionView.isSkeletonable = true
+        
+        let animation = SkeletonAnimationBuilder().makeSlidingAnimation(withDirection: .leftRight)
+        collectionView.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: AppColor.subBackground.inUIColorFormat), animation: animation, transition: .crossDissolve(1))
+        
         NetworkManager.shared.callRequest( apiKind: .trending ) { (response : TrendingResponse) -> Void in
             let movieList = response.results
             self.todayMovieList = movieList
@@ -172,7 +183,9 @@ final class MainViewController: BaseViewController {
     
     override func configureViewDetails() {
         view.backgroundColor = AppColor.mainBackground.inUIColorFormat
+        
         collectionView.backgroundColor = AppColor.mainBackground.inUIColorFormat
+        
         
         keywordDeleteButton.addTarget(self, action: #selector(deleteSearchHistory), for: .touchUpInside)
         
@@ -233,8 +246,23 @@ final class MainViewController: BaseViewController {
     }
 }
 
-//MARK: Collection Protocol
-extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSource {
+//MARK: Collection + SkeletionCollectionView Protocol
+extension MainViewController: SkeletonCollectionViewDelegate {}
+
+extension MainViewController: SkeletonCollectionViewDataSource {
+    
+    func numSections(in collectionSkeletonView: UICollectionView) -> Int {
+        1
+    }
+    
+    func collectionSkeletonView(_ skeletonView: UICollectionView, cellIdentifierForItemAt indexPath: IndexPath) -> SkeletonView.ReusableCellIdentifier {
+        MainMovieCollectionCell.id
+    }
+    
+    func collectionSkeletonView(_ skeletonView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        todayMovieList.count
+    }
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         todayMovieList.count
     }
@@ -243,6 +271,7 @@ extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSour
         if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MainMovieCollectionCell.id, for: indexPath) as? MainMovieCollectionCell {
             cell.fillUpData(movie: todayMovieList[indexPath.item])
             cell.delegate = self
+            
             return cell
         }
         return UICollectionViewCell()

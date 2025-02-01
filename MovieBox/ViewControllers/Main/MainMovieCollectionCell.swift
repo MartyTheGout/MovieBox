@@ -8,6 +8,7 @@
 import UIKit
 import SnapKit
 import Kingfisher
+import SkeletonView
 
 final class MainMovieCollectionCell: BaseCollectionViewCell, IncludingLike {
     
@@ -82,6 +83,18 @@ final class MainMovieCollectionCell: BaseCollectionViewCell, IncludingLike {
     override func configureViewDetails() {
         contentView.backgroundColor = AppColor.mainBackground.inUIColorFormat
         likeButton.addTarget(self, action: #selector(updateLikeStatus), for: .touchUpInside)
+        
+        self.isSkeletonable = true
+        imageView.isSkeletonable = true
+        titleLable.isSkeletonable = true
+        overviewLabel.isSkeletonable = true
+        
+        titleLable.linesCornerRadius = 5
+        overviewLabel.linesCornerRadius = 5
+        
+        let animation = SkeletonAnimationBuilder().makeSlidingAnimation(withDirection: .leftRight)
+        imageView.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: AppColor.subBackground.inUIColorFormat), animation: animation, transition: .crossDissolve(1))
+        
     }
     
     @objc func updateLikeStatus() {
@@ -105,7 +118,11 @@ final class MainMovieCollectionCell: BaseCollectionViewCell, IncludingLike {
         if let backdropPath = movie.backdropPath {
             let imageUrl = Datasource.baseImageURL.rawValue + backdropPath
             let url = URL(string: imageUrl)
-            imageView.kf.setImage(with: url )
+            imageView.kf.setImage(with: url ) { _ in
+                self.imageView.stopSkeletonAnimation()
+                self.imageView.hideSkeleton()
+                self.imageView.layer.cornerRadius = 10
+            }
         }
         
         titleLable.text = movie.title
