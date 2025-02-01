@@ -229,6 +229,7 @@ final class MainViewController: BaseViewController {
                     }
                     
                     ApplicationUserData.recentlyUsedKeyword.remove(at: index)
+                    self.recentlyUsedKeyword = ApplicationUserData.recentlyUsedKeyword
                     self.toggleNoResultLabelState()
                 }
             )
