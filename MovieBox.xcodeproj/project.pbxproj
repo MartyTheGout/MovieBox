@@ -11,6 +11,7 @@
 		408A3E512D436C6D00C2FB8A /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 408A3E502D436C6D00C2FB8A /* Kingfisher */; };
 		408A3E542D436C7900C2FB8A /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 408A3E532D436C7900C2FB8A /* SnapKit */; };
 		408A3E572D436C9B00C2FB8A /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 408A3E562D436C9B00C2FB8A /* Alamofire */; };
+		408B6D262D4DE0DF0017AE33 /* SkeletonView in Frameworks */ = {isa = PBXBuildFile; productRef = 408B6D252D4DE0DF0017AE33 /* SkeletonView */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -44,6 +45,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				408B6D262D4DE0DF0017AE33 /* SkeletonView in Frameworks */,
 				408A3E572D436C9B00C2FB8A /* Alamofire in Frameworks */,
 				408A3E512D436C6D00C2FB8A /* Kingfisher in Frameworks */,
 				408A3E542D436C7900C2FB8A /* SnapKit in Frameworks */,
@@ -93,6 +95,7 @@
 				408A3E502D436C6D00C2FB8A /* Kingfisher */,
 				408A3E532D436C7900C2FB8A /* SnapKit */,
 				408A3E562D436C9B00C2FB8A /* Alamofire */,
+				408B6D252D4DE0DF0017AE33 /* SkeletonView */,
 			);
 			productName = MovieBox;
 			productReference = 408A3DEC2D43603200C2FB8A /* MovieBox.app */;
@@ -126,6 +129,7 @@
 				408A3E4F2D436C6D00C2FB8A /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				408A3E522D436C7900C2FB8A /* XCRemoteSwiftPackageReference "SnapKit" */,
 				408A3E552D436C9B00C2FB8A /* XCRemoteSwiftPackageReference "Alamofire" */,
+				408B6D242D4DE0DF0017AE33 /* XCRemoteSwiftPackageReference "SkeletonView" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 408A3DED2D43603200C2FB8A /* Products */;
@@ -397,6 +401,14 @@
 				minimumVersion = 5.10.2;
 			};
 		};
+		408B6D242D4DE0DF0017AE33 /* XCRemoteSwiftPackageReference "SkeletonView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Juanpe/SkeletonView.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.31.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -414,6 +426,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 408A3E552D436C9B00C2FB8A /* XCRemoteSwiftPackageReference "Alamofire" */;
 			productName = Alamofire;
+		};
+		408B6D252D4DE0DF0017AE33 /* SkeletonView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 408B6D242D4DE0DF0017AE33 /* XCRemoteSwiftPackageReference "SkeletonView" */;
+			productName = SkeletonView;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
