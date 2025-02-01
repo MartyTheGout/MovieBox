@@ -232,6 +232,8 @@ final class DetailViewController: BaseScrollViewController {
     }
     
     override func configureViewDetails() {
+        view.backgroundColor = AppColor.mainBackground.inUIColorFormat
+        
         guard let movieId else { return }
         showLikeStatus(id: movieId)
         synopsisButton.addTarget(self, action: #selector(toggleSynosisDisplayOption), for: .touchUpInside)
