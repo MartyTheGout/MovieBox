@@ -8,6 +8,7 @@
 import UIKit
 import SnapKit
 import Kingfisher
+import SkeletonView
 
 final class SearchTableViewCell: BaseTableViewCell {
     
@@ -95,10 +96,21 @@ final class SearchTableViewCell: BaseTableViewCell {
     override func configureViewDetails() {
         contentView.backgroundColor = AppColor.mainBackground.inUIColorFormat
         likeButton.addTarget(self, action: #selector(updateLikeStatus), for: .touchUpInside)
+        
+        mainImage.isSkeletonable = true
+        titleLabel.isSkeletonable = true
+        dateLabel.isSkeletonable = true
+        genreStack.isSkeletonable = true
+        
+        titleLabel.linesCornerRadius = 5
+        dateLabel.linesCornerRadius = 5
+        
+        let animation = SkeletonAnimationBuilder().makeSlidingAnimation(withDirection: .leftRight)
+        mainImage.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: AppColor.subBackground.inUIColorFormat), animation: animation, transition: .crossDissolve(1))
     }
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
+
+    override func draw(_ rect: CGRect) {
+        super.draw(rect)
         mainImage.clipsToBounds = true
         mainImage.layer.cornerRadius = 10
     }
@@ -135,7 +147,16 @@ extension SearchTableViewCell {
         showLikeStatus(id: data.id)
         
         if let posterPath = data.posterPath, !posterPath.isEmpty {
-            mainImage.kf.setImage(with: URL(string: Datasource.baseImageURL.rawValue + posterPath)!)
+            mainImage.kf.setImage(with: URL(string: Datasource.baseImageURL.rawValue + posterPath)!) { _ in
+                self.mainImage.stopSkeletonAnimation()
+                self.mainImage.hideSkeleton()
+                self.mainImage.layer.cornerRadius = 10
+            }
+        } else {
+            mainImage.image = UIImage(systemName: "film")
+            mainImage.stopSkeletonAnimation()
+            mainImage.hideSkeleton()
+            mainImage.layer.cornerRadius = 10
         }
         
         if let keyword = searchKeyword , let _ = data.title?.contains(keyword) {

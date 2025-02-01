@@ -6,6 +6,7 @@
 //
 import UIKit
 import SnapKit
+import SkeletonView
 
 final class SearchViewController: BaseViewController {
     
@@ -28,6 +29,11 @@ final class SearchViewController: BaseViewController {
     
     var data: [Movie] = [] {
         didSet {
+            if !data.isEmpty {
+                tableView.stopSkeletonAnimation()
+                tableView.hideSkeleton()
+            }
+            
             tableView.reloadData()
             handleSearchResultOnView()
         }
@@ -121,6 +127,11 @@ final class SearchViewController: BaseViewController {
     override func configureViewDetails() {
         view.backgroundColor = AppColor.mainBackground.inUIColorFormat
         tableView.separatorStyle = .none
+        
+        tableView.isSkeletonable = true
+
+        let animation = SkeletonAnimationBuilder().makeSlidingAnimation(withDirection: .leftRight)
+        tableView.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: AppColor.subBackground.inUIColorFormat), animation: animation, transition: .crossDissolve(1))
     }
     
     private func handleSearchResultOnView() {
@@ -132,8 +143,24 @@ final class SearchViewController: BaseViewController {
     }
 }
 
-//MARK: TableView Protocol
-extension SearchViewController : UITableViewDelegate, UITableViewDataSource {
+//MARK: TableView + Skeleton Protocol
+extension SearchViewController: SkeletonTableViewDelegate {}
+
+
+extension SearchViewController : SkeletonTableViewDataSource {
+    
+    func numSections(in collectionSkeletonView: UITableView) -> Int {
+        1
+    }
+    
+    func collectionSkeletonView(_ collectionSkeletonView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return data.count
+    }
+    
+    func collectionSkeletonView(_ skeletonView: UITableView, cellIdentifierForRowAt indexPath: IndexPath) -> ReusableCellIdentifier {
+        return SearchTableViewCell.id
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return data.count
     }
