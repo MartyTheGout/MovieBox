@@ -9,12 +9,14 @@ import UIKit
 import SnapKit
 import Kingfisher
 
-final class SearchTableViewCell: BaseTableViewCell, IncludingLike {
+final class SearchTableViewCell: BaseTableViewCell {
     
     static var id : String { String (describing: self) }
     
     var movieId: Int?
+    var searchKeyword: String?
     
+    //MARK: View Components
     let mainImage : UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
@@ -53,6 +55,7 @@ final class SearchTableViewCell: BaseTableViewCell, IncludingLike {
         return button
     }()
     
+    //MARK: View Controller Life Cycle
     override func configureViewHierarchy() {
         [mainImage, titleLabel, dateLabel, genreStack, likeButton].forEach{
             contentView.addSubview($0)
@@ -93,6 +96,38 @@ final class SearchTableViewCell: BaseTableViewCell, IncludingLike {
         likeButton.addTarget(self, action: #selector(updateLikeStatus), for: .touchUpInside)
     }
     
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        mainImage.clipsToBounds = true
+        mainImage.layer.cornerRadius = 10
+    }
+}
+
+//MARK: IncludingLike Protocol
+extension SearchTableViewCell: IncludingLike {
+    @objc func updateLikeStatus() {
+        guard let id = movieId else {
+            print("[not-proper assignment] id is not set properly")
+            return
+        }
+        
+        if let idLocation = ApplicationUserData.likedIdArray.firstIndex(of: id) {
+            ApplicationUserData.likedIdArray.remove(at: idLocation)
+        } else {
+            ApplicationUserData.likedIdArray.append(id)
+        }
+        
+        showLikeStatus(id: id)
+    }
+    
+    func showLikeStatus(id: Int) {
+        let image = ApplicationUserData.likedIdArray.contains(id) ? AppSFSymbol.blackHeart.image : AppSFSymbol.whiteHeart.image
+        likeButton.setImage(image, for: .normal)
+    }
+}
+
+//MARK: Actions
+extension SearchTableViewCell {
     func fillUpData(with data: Movie) {
         movieId = data.id
         // TODO: Mysterious work for using this method, not working when locate the function in the end of this closure
@@ -102,7 +137,15 @@ final class SearchTableViewCell: BaseTableViewCell, IncludingLike {
             mainImage.kf.setImage(with: URL(string: Datasource.baseImageURL.rawValue + posterPath)!)
         }
         
-        titleLabel.text = data.title
+        if let keyword = searchKeyword , let _ = data.title?.contains(keyword) {
+            if let textValue = data.title {
+                titleLabel.attributedText = getHighlightedString(originalText: textValue, keyword: keyword)
+            }
+            
+        } else {
+            titleLabel.text = data.title
+        }
+        
         dateLabel.text = data.releaseDate
         
         // genreStack의 서브뷰 초기화
@@ -129,29 +172,46 @@ final class SearchTableViewCell: BaseTableViewCell, IncludingLike {
         }
     }
     
-    @objc func updateLikeStatus() {
-        guard let id = movieId else {
-            print("[not-proper assignment] id is not set properly")
-            return
+    private func getHighlightedString(originalText: String, keyword: String, mutableString: NSMutableAttributedString = NSMutableAttributedString(string: "")) -> NSAttributedString {
+        let mutableString = mutableString
+        
+        guard let keywordRange = originalText.range(of: keyword) else {
+            let attributedString = NSAttributedString(string: originalText, attributes: [
+                .font : UIFont.systemFont(ofSize: 17, weight: .medium),
+                .foregroundColor : AppColor.mainInfoDeliver.inUIColorFormat
+            ])
+            
+            mutableString.append(attributedString)
+            
+            return mutableString
         }
         
-        if let idLocation = ApplicationUserData.likedIdArray.firstIndex(of: id) {
-            ApplicationUserData.likedIdArray.remove(at: idLocation)
+        if originalText.startIndex == keywordRange.lowerBound {
+            let keywordPart = originalText[keywordRange]
+            let attributedString = NSAttributedString(string: String(keywordPart), attributes: [
+                .font : UIFont.systemFont(ofSize: 17, weight: .bold),
+                .foregroundColor : UIColor.yellow
+            ])
+            
+            mutableString.append(attributedString)
+            
+            //**Be cautious : String.Range seeme like a..<b, which is not including the upper bound character. => so "next index" of upper bound can easily be out of String index
+            return originalText.endIndex == keywordRange.upperBound ?
+            mutableString :
+            getHighlightedString(originalText: String(originalText[keywordRange.upperBound..<originalText.endIndex]), keyword: keyword, mutableString: mutableString)
+            
         } else {
-            ApplicationUserData.likedIdArray.append(id)
+            let keywordBeforeIndex = originalText.index(before: keywordRange.lowerBound)
+            let keywordBeforePart = originalText[originalText.startIndex...keywordBeforeIndex]
+            
+            let attributedStringBefore = NSAttributedString(string: String(keywordBeforePart), attributes: [
+                .font : UIFont.systemFont(ofSize: 17, weight: .medium),
+                .foregroundColor : AppColor.mainInfoDeliver.inUIColorFormat
+            ])
+            
+            mutableString.append(attributedStringBefore)
+            
+            return getHighlightedString(originalText: String(originalText[keywordRange.lowerBound..<originalText.endIndex]), keyword: keyword, mutableString: mutableString)
         }
-        
-        showLikeStatus(id: id)
-    }
-    
-    func showLikeStatus(id: Int) {
-        let image = ApplicationUserData.likedIdArray.contains(id) ? AppSFSymbol.blackHeart.image : AppSFSymbol.whiteHeart.image
-        likeButton.setImage(image, for: .normal)
-    }
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        mainImage.clipsToBounds = true
-        mainImage.layer.cornerRadius = 10
     }
 }

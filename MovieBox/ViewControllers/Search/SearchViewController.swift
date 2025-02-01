@@ -140,6 +140,7 @@ extension SearchViewController : UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if let cell = tableView.dequeueReusableCell(withIdentifier: SearchTableViewCell.id) as? SearchTableViewCell {
+            cell.searchKeyword = currentKeyword
             cell.fillUpData(with: data[indexPath.row])
             return cell
         }
