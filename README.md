@@ -1,7 +1,16 @@
 # MovieBox
 
-In this project, you can find update-to-date movies and mark them as liked. 
-look around movies, and mark it liked. 
+## 앱 소개
+MovieBox에서는
+
+- 프로젝트 기간: 2025.01.24 ~ 2025.02.01
+- 인원 : 1명  
+
+## 앱 기능 
+
+
+## 기술 스택
+
 
 # Setting
 
