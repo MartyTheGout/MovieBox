@@ -334,6 +334,6 @@ extension MainViewController {
             self.view.backgroundColor = AppColor.cardBackground.inUIColorFormat
         }
                 
-        present(UINavigationController(rootViewController: destinationVC), animated: true)
+        present(navigationController, animated: true)
     }
 }
