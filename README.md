@@ -1,25 +1,41 @@
 # MovieBox
 
-In this project, you can find update-to-date movies and mark them as liked. 
-look around movies, and mark it liked. 
+## 앱 소개
+MovieBox에서는 개봉 영화의 현황과 영화 검색, 그리고 영화의 상세한 정보를 볼 수 있으며, "좋아요" 표시를 통해서 나만의 영화 리스트를 만들 수 있습니다. 
 
-# Setting
+- 프로젝트 기간: 2025.01.24 ~ 2025.02.01
+- 인원 : 1명  
 
-Platform : iOS
+## 앱 기능 
+1. 최근 개봉 영화 열람 <스크린샷 필요>
+메인 페이지에는서는 언제나 오늘을 기준으로, 개봉한 20개의 영화 정보를 확인할 수 있습니다. 
 
-minimum version supported : iOS 16.0.0 
+2. 영화 검색 <스크린샷 필요>
+다양한 키워드로 영화를 검색할 수 있습니다. 검색한 키워드는 앱 내에 저장되어서, 손쉽게 키워드에 접근하고 다시금 검색결과를 열람할 수 있습니다. 물론, 과거 검색 키워드를 삭제하는 것도 가능합니다. 
 
-orientation supported : portrait 
+3. 영화 상세 정보 열람 <스크린샷 필요>
+영화 검색 페이지에서도, 메인 페이지에서도 관심있는 영화를 탭하여 보다 상세한 정보를 볼 수 있습니다. 상세 정보는 아래의 사항들을 포함합니다.
+- 영화 제목, 개봉 날짜, 장르, 평점, 줄거리, 포스터 이미지, 영화 주요 이미지, 캐스팅 정보 
 
-# Flow 
+4. 좋아요 <스크린샷 필요>
+메인페이지/검색결과/상세페이지 관계 없이, 영화에 관련된 정보를 볼 수 있는 페이지 어디에서든 '좋아요'를 마크할 수 있습니다. 좋아요는 앱 내 저장소에 기록되며, 메인페이지, 설정페이지에서도 지금까지 표시해온 좋아요와 관련된 정보를 확인할 수 있습니다. 
 
-VC Flow is expected as next image. 
+5. 프로필 편집 / 닉네임 변경 <스크린샷 필요>
+앱의 최초 런칭시에 설정했던 닉네임과 프로필 이미지는 언제든지 변경가능합니다. 메인페이지 / 설정페이지의 유저카드를 탭해주세요. 
 
-![스크린샷 2025-01-24 오후 5 29 15](https://github.com/user-attachments/assets/db44f593-73dc-43cd-b34c-2e0cab927c90)
+## 기술 스택
+Swift, iOS, UIKit, Alamofire, SnapKit, Kingfisher, SkeletonView 
+
+## 기술 설명
+
+- Alamofire를 이용한 API server와의 통신 
+<코드> 
+간결한 쓰임으로 네트워크 통신에 대한 단일책임만은 분명하게 작성. 오픈 소스를 사용해서 활용할 수 있는 이점극대화하여, 캐싱 + 리스폰스 처리 등으로 네트워크 이슈를 간결하게 대응 샬라샬라 
+
+- SkeletonView 를 도입하여, 지연되는 서버통신에도 직관적인 유저경험을 제공
+<코드>
+
+- ...
 
 
-# Design System 
-
-code for Design System applied using UIColor Extension 
-
-referenced : https://forums.swift.org/t/pitch-uicolor-initialization-using-hex-value-and-alpha-value/68467
+## Trouble Shooting 
