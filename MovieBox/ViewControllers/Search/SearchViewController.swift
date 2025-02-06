@@ -7,6 +7,7 @@
 import UIKit
 import SnapKit
 import SkeletonView
+import Alamofire
 
 final class SearchViewController: BaseViewController {
     
@@ -14,7 +15,7 @@ final class SearchViewController: BaseViewController {
         didSet {
             guard let keyword = currentKeyword else { return }
             if searchBar.text == currentKeyword {
-            
+                
             } else {
                 // when being currentKeyword set from outside
                 searchBar.text = keyword
@@ -129,7 +130,7 @@ final class SearchViewController: BaseViewController {
         tableView.separatorStyle = .none
         
         tableView.isSkeletonable = true
-
+        
         let animation = SkeletonAnimationBuilder().makeSlidingAnimation(withDirection: .leftRight)
         tableView.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: AppColor.subBackground.inUIColorFormat), animation: animation, transition: .crossDissolve(1))
     }
@@ -189,7 +190,7 @@ extension SearchViewController : SkeletonTableViewDataSource {
         }
         
         destinationVC.bringDetailData(data: movie)
-    
+        
         navigationController?.pushViewController(destinationVC, animated: true)
     }
 }
@@ -226,33 +227,33 @@ extension SearchViewController : UISearchBarDelegate {
 //MARK: Actions
 extension SearchViewController {
     func executeSearchEvent(queryString: String) {
-        
         if queryString != currentKeyword {
             page = 1
         }
         
-        NetworkManager.shared.callRequest(apiKind: .search(query: queryString, page: page)) { (response: SearchResponse) -> Void in
-              
-            if queryString == self.currentKeyword {
-                self.data.append(contentsOf: response.results)
-            } else {
-                self.data = response.results
-                if !self.data.isEmpty {
-                    self.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
-                    self.page = 1
+        NetworkManager.shared.callRequest(apiKind: .search(query: queryString, page: page)) { (response: Result<SearchResponse, AFError>) -> Void in
+            switch response {
+            case .success(let value):
+                if queryString == self.currentKeyword {
+                    self.data.append(contentsOf: value.results)
+                } else {
+                    self.data = value.results
+                    if !self.data.isEmpty {
+                        self.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+                        self.page = 1
+                    }
                 }
+                
+                self.currentKeyword = queryString
+                
+                if self.page < value.totalPages {
+                    self.availableNextFetching = true
+                } else {
+                    self.availableNextFetching = false
+                }
+            case .failure(let error):
+                dump(error)
             }
-        
-            self.currentKeyword = queryString
-            
-            if self.page < response.totalPages {
-                self.availableNextFetching = true
-            } else {
-                self.availableNextFetching = false
-            }
-        } failureHandler: { afError, responseError in
-            dump(afError)
-            dump(responseError)
         }
     }
 }

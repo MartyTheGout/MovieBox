@@ -8,6 +8,7 @@
 import UIKit
 import SnapKit
 import SkeletonView
+import Alamofire
 
 final class MainViewController: BaseViewController {
     
@@ -116,14 +117,16 @@ final class MainViewController: BaseViewController {
         let animation = SkeletonAnimationBuilder().makeSlidingAnimation(withDirection: .leftRight)
         collectionView.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: AppColor.subBackground.inUIColorFormat), animation: animation, transition: .crossDissolve(1))
         
-        NetworkManager.shared.callRequest( apiKind: .trending ) { (response : TrendingResponse) -> Void in
-            let movieList = response.results
-            self.todayMovieList = movieList
-        } failureHandler: { afError, statusError in
-            dump(afError)
-            dump(statusError)
-        }
-    }
+        NetworkManager.shared.callRequest( apiKind: .trending ) { (response : Result<TrendingResponse, AFError>) -> Void in
+            switch response {
+            case .success(let value):
+                let movieList = value.results
+                self.todayMovieList = movieList
+            case.failure(let error):
+                dump(error)
+            }
+            
+        }    }
     
     override func setInitialValue() {
         navigationName = "Movie Box"
@@ -151,7 +154,7 @@ final class MainViewController: BaseViewController {
             $0.top.equalTo(mainCard.snp.bottom).offset(16)
             $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(16)
         }
-
+        
         buttonScrollView.snp.makeConstraints{
             $0.top.equalTo(searchHeaderView.snp.bottom).offset(10)
             $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
@@ -333,7 +336,7 @@ extension MainViewController {
         UIView.animate(withDuration: 1.0) {
             self.view.backgroundColor = AppColor.cardBackground.inUIColorFormat
         }
-                
+        
         present(navigationController, animated: true)
     }
 }

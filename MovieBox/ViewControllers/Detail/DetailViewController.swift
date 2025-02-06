@@ -8,6 +8,7 @@
 import UIKit
 import SnapKit
 import Kingfisher
+import Alamofire
 
 final class DetailViewController: BaseScrollViewController {
     var movieId: Int?
@@ -367,94 +368,99 @@ extension DetailViewController {
         
         synopsisContentLabel.text = data.overview
         
-        NetworkManager.shared.callRequest(apiKind: .image(movieId: data.id)) { (imageResponse: ImageResponse) -> Void in
-            let backdrops = imageResponse.backdrops.prefix(5)
-            let posters = imageResponse.posters
+        NetworkManager.shared.callRequest(apiKind: .image(movieId: data.id)) { (imageResponse: Result<ImageResponse, AFError>) -> Void in
             
-            if backdrops.isEmpty {
-                let imageView = UIImageView()
-                imageView.image = UIImage(systemName: "film")
-                imageView.clipsToBounds = true
-                imageView.contentMode = .scaleAspectFit
-                imageView.tintColor = AppColor.subBackground.inUIColorFormat
+            switch imageResponse {
+            case .success(let value):
+                let backdrops = value.backdrops.prefix(5)
+                let posters = value.posters
                 
-                self.backDropContentView.addSubview(imageView)
-                
-            } else {
-                backdrops.forEach {
-                    let imageURL = Datasource.baseImageURL.rawValue + $0.filePath
+                if backdrops.isEmpty {
                     let imageView = UIImageView()
-                    imageView.kf.setImage(with: URL(string: imageURL)!)
+                    imageView.image = UIImage(systemName: "film")
                     imageView.clipsToBounds = true
-                    imageView.contentMode = .scaleAspectFill
+                    imageView.contentMode = .scaleAspectFit
+                    imageView.tintColor = AppColor.subBackground.inUIColorFormat
                     
                     self.backDropContentView.addSubview(imageView)
-                }
-            }
-            
-            // initially number is set to 5, but in case of less than 5 => need to set to precise value
-            self.pageControl.numberOfPages = self.backDropContentView.subviews.count
-            
-            var horizontalCoordinateBase: ConstraintRelatableTarget = self.backDropContentView
-            self.backDropContentView.subviews.forEach { subView in
-                subView.snp.makeConstraints {
-                    $0.top.equalTo(self.backDropContentView)
-                    $0.leading.equalTo(horizontalCoordinateBase)
-                    $0.width.equalTo(UIScreen.main.bounds.width)
-                    $0.height.equalTo(UIScreen.main.bounds.width * (2/3))
+                    
+                } else {
+                    backdrops.forEach {
+                        let imageURL = Datasource.baseImageURL.rawValue + $0.filePath
+                        let imageView = UIImageView()
+                        imageView.kf.setImage(with: URL(string: imageURL)!)
+                        imageView.clipsToBounds = true
+                        imageView.contentMode = .scaleAspectFill
+                        
+                        self.backDropContentView.addSubview(imageView)
+                    }
                 }
                 
-                horizontalCoordinateBase = subView.snp.trailing
-            }
-            
-            // make backDropContentView have same trailing with the last sub image.
-            self.backDropContentView.snp.makeConstraints {
-                $0.trailing.equalTo(horizontalCoordinateBase)
-            }
-            
-            if posters.isEmpty {
-                let imageView = UIImageView()
-                imageView.image = UIImage(systemName: "film")
-                imageView.clipsToBounds = true
-                imageView.contentMode = .scaleAspectFit
-                imageView.tintColor = AppColor.subBackground.inUIColorFormat
+                // initially number is set to 5, but in case of less than 5 => need to set to precise value
+                self.pageControl.numberOfPages = self.backDropContentView.subviews.count
                 
-                self.posterContentView.addArrangedSubview(imageView)
+                var horizontalCoordinateBase: ConstraintRelatableTarget = self.backDropContentView
+                self.backDropContentView.subviews.forEach { subView in
+                    subView.snp.makeConstraints {
+                        $0.top.equalTo(self.backDropContentView)
+                        $0.leading.equalTo(horizontalCoordinateBase)
+                        $0.width.equalTo(UIScreen.main.bounds.width)
+                        $0.height.equalTo(UIScreen.main.bounds.width * (2/3))
+                    }
+                    
+                    horizontalCoordinateBase = subView.snp.trailing
+                }
                 
-            } else {
-                posters.forEach {
-                    let imageURL = Datasource.baseImageURL.rawValue + $0.filePath
+                // make backDropContentView have same trailing with the last sub image.
+                self.backDropContentView.snp.makeConstraints {
+                    $0.trailing.equalTo(horizontalCoordinateBase)
+                }
+                
+                if posters.isEmpty {
                     let imageView = UIImageView()
-                    imageView.kf.setImage(with: URL(string: imageURL)!)
+                    imageView.image = UIImage(systemName: "film")
                     imageView.clipsToBounds = true
-                    imageView.contentMode = .scaleToFill
+                    imageView.contentMode = .scaleAspectFit
+                    imageView.tintColor = AppColor.subBackground.inUIColorFormat
                     
                     self.posterContentView.addArrangedSubview(imageView)
+                    
+                } else {
+                    posters.forEach {
+                        let imageURL = Datasource.baseImageURL.rawValue + $0.filePath
+                        let imageView = UIImageView()
+                        imageView.kf.setImage(with: URL(string: imageURL)!)
+                        imageView.clipsToBounds = true
+                        imageView.contentMode = .scaleToFill
+                        
+                        self.posterContentView.addArrangedSubview(imageView)
+                    }
                 }
-            }
-            
-            self.posterContentView.subviews.forEach { subView in
-                subView.snp.makeConstraints {
-                    $0.width.equalTo(self.posterWidth)
-                    $0.height.equalTo(self.posterHeight)
+                
+                self.posterContentView.subviews.forEach { subView in
+                    subView.snp.makeConstraints {
+                        $0.width.equalTo(self.posterWidth)
+                        $0.height.equalTo(self.posterHeight)
+                    }
                 }
+                
+            case.failure(let error):
+                dump(error)
             }
-            
-        } failureHandler: { afError, httpResponseError in
-            dump(afError)
-            dump(httpResponseError.description)
         }
         
-        NetworkManager.shared.callRequest(apiKind: .credit(movieId: data.id)) { (response: CreditResponse )-> Void in
-            if response.cast.isEmpty {
-                let emptyCastRepresentative = Cast(name: "No Data", character: "-", profilePath: "")
-                self.casts = [emptyCastRepresentative]
-            } else {
-                self.casts = response.cast
+        NetworkManager.shared.callRequest(apiKind: .credit(movieId: data.id)) { (response: Result<CreditResponse, AFError> )-> Void in
+            switch response {
+            case .success(let value) :
+                if value.cast.isEmpty {
+                    let emptyCastRepresentative = Cast(name: "No Data", character: "-", profilePath: "")
+                    self.casts = [emptyCastRepresentative]
+                } else {
+                    self.casts = value.cast
+                }
+            case .failure(let error) :
+                dump(error)
             }
-        } failureHandler : { afError, httpResponseError in
-            dump(afError)
-            dump(httpResponseError)
         }
     }
     

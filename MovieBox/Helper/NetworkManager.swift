@@ -35,18 +35,18 @@ enum HttpResponseError : Error {
     
     var description : String {
         switch self {
-            case .incorrectParameters:
-                return "[400] Incorrect parameters or body assumed"
-            case .unautorized:
-                return "[401] Unautorized Request: Invalid access token"
-            case .lackOfPermission:
-                return "[403] Lack of permission: Check the user's permission"
-            case .noPathExists:
-                return "[404] No path exists: Confirm base url / path behind"
-            case .internalServerError:
-                return "[500] Internal server error: Check the server side notice"
-            case .undefinedCode:
-                return "[XXX] Undefined code: Check the response document"
+        case .incorrectParameters:
+            return "[400] Incorrect parameters or body assumed"
+        case .unautorized:
+            return "[401] Unautorized Request: Invalid access token"
+        case .lackOfPermission:
+            return "[403] Lack of permission: Check the user's permission"
+        case .noPathExists:
+            return "[404] No path exists: Confirm base url / path behind"
+        case .internalServerError:
+            return "[500] Internal server error: Check the server side notice"
+        case .undefinedCode:
+            return "[XXX] Undefined code: Check the response document"
         }
     }
 }
@@ -83,18 +83,10 @@ final class NetworkManager {
     
     func callRequest<T: Codable>(
         apiKind : MoviewRequest,
-        completionHandler: @escaping (T) -> Void,
-        failureHandler: ( (AFError, HttpResponseError) -> Void)?
+        completionHandler: @escaping (Result<T, AFError>) -> Void
     ) {
         AF.request(apiKind.endpoint, method: apiKind.method, headers: apiKind.authorizationHeader).responseDecodable(of: T.self) { response in
-            
-            switch response.result {
-            case .success(let value):
-                completionHandler(value)
-            case .failure(let error):
-                let customError = HttpResponseError(statusCode: response.response?.statusCode ?? 0)
-                failureHandler?(error, customError!)
-            }
+            completionHandler(response.result)
         }
     }
 }
