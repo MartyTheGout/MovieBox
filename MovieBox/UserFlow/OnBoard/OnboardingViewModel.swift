@@ -9,7 +9,6 @@ import Foundation
 import UIKit
 
 class OnboardingViewModel {
-    
     let ioTextDictionary: [String: String]  = [
         "titleLabel": "Onboarding",
         "subTitleLabel":"당신만의 영화 세상,\n MovieBox를 시작해보세요.",
