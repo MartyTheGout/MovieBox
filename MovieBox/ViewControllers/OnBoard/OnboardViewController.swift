@@ -9,6 +9,9 @@ import UIKit
 import SnapKit
 
 final class OnboardViewController: BaseViewController {
+    
+    let viewModel = OnboardingViewModel()
+    
     let imageView : UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(named: "onboarding")
@@ -17,26 +20,30 @@ final class OnboardViewController: BaseViewController {
         return imageView
     }()
     
-    let titleLable : UILabel = {
+    lazy var titleLable : UILabel = {
         let label = UILabel()
         label.font = UIFont(name: "", size: 35)
         label.font = UIFont.systemFont(ofSize: 35, weight: .black)
         label.textColor = AppColor.mainInfoDeliver.inUIColorFormat
-        label.text = "Onboarding"
+        label.text = viewModel.ioTextDictionary["titleLabel"]
         return label
     }()
     
-    let subTitleLabel : UILabel = {
+    lazy var subTitleLabel : UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize:17)
         label.textColor = AppColor.subInfoDeliver.inUIColorFormat
         label.numberOfLines = 2
         label.textAlignment = .center
-        label.text = "당신만의 영화 세상,\n MovieBox를 시작해보세요."
+        label.text = viewModel.ioTextDictionary["subTitleLabel"]
         return label
     }()
     
-    let button : UIButton = BlueBorderButton(title: "시작하기")
+    lazy var button : UIButton = {
+        guard let buttonTitle = viewModel.ioTextDictionary["button"]  else { return UIButton()}
+        
+        return BlueBorderButton(title: buttonTitle)
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -87,7 +94,6 @@ final class OnboardViewController: BaseViewController {
 //MARK: SubView's action
 extension OnboardViewController {
     @objc func navigateToMainView() {
-        let destinationVC = ProfileViewController()
-        navigationController?.pushViewController(destinationVC, animated: true)
+        navigationController?.pushViewController(viewModel.getDestinationVC(), animated: true)
     }
 }
