@@ -8,12 +8,14 @@
 import UIKit
 
 enum AppColor: String {
-    case tintBlue = "0099D6"
+    case tintBlue = "186FF2"
     case mainBackground = "000000"
-    case subBackground = "8E8E8E"
-    case cardBackground = "2F2F2F   "
+    case subBackground = "8C8C8C"
+    case cardBackground = "2F2F2F"
     case mainInfoDeliver = "FFFFFF"
     case subInfoDeliver = "E1E1E1"
+    
+    case negativeMessage = "F04452"
     
     var inUIColorFormat: UIColor {
         UIColor(hex: self.rawValue)
