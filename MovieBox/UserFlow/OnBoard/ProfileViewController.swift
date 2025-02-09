@@ -10,6 +10,8 @@ import SnapKit
 
 final class ProfileViewController: BaseViewController {
     
+    let viewModel = ProfileViewModel()
+    
     var isModalPresentation: Bool
     
     var delegate : ReverseValueAssigning?
@@ -23,17 +25,8 @@ final class ProfileViewController: BaseViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    var userData: Int = {
-        let userData = ApplicationUserData.profileNumber
-        return userData == 100 ? Int.random(in: 0...11) : userData
-    }() {
-        didSet {
-            selectedProfileView.changeImage(userData: self.userData)
-        }
-    }
-    
     //MARK: View Components
-    lazy var selectedProfileView = SelectedProfileView(userData: self.userData)
+    lazy var selectedProfileView = SelectedProfileView(userData: self.viewModel.userProfileNumber.value)
     
     let textFieldView = NameTextFieldView()
     let validationLabel : UILabel = {
@@ -42,37 +35,40 @@ final class ProfileViewController: BaseViewController {
         return label
     }()
     
-    let completionButton = BlueBorderButton(title: "완료")
-    
-    var validation = false {
-        didSet {
-            completionButton.isEnabled = validation
-        }
-    }
+    lazy var completionButton = ColorFilledButton(title: viewModel.iaDictionary["button.text"] ?? "")
     
     //MARK: View Controller Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         textFieldView.textField.delegate = self
         textFieldView.textField.becomeFirstResponder()
+        setDataBindings()
     }
-        
+    
     override func setInitialValue() {
         if let _ = presentingViewController {
-            navigationName = "프로필 편집"
+            navigationName = viewModel.iaDictionary["modal.title"]
         } else {
-            navigationName = "프로필 설정"
+            navigationName = viewModel.iaDictionary["nav.push.title"]
         }
     }
     
     override func configureNavigationBar() {
-        super.configureNavigationBar()
+        navigationController?.navigationBar.titleTextAttributes = [
+            .foregroundColor : AppColor.mainBackground.inUIColorFormat
+        ]
+        
+        if let title = navigationName {
+            navigationItem.title = title
+        }
+        
+        navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
+        
         
         if isModalPresentation {
             navigationItem.leftBarButtonItem = UIBarButtonItem(image: AppSFSymbol.x.image, style: .plain, target: self, action: #selector(goBackToThePreviousView))
             
             navigationItem.rightBarButtonItem = UIBarButtonItem(title: "저장", style: .plain, target: self, action: #selector(modifyProfileInfo))
-            
         }
     }
     
@@ -113,7 +109,7 @@ final class ProfileViewController: BaseViewController {
     }
     
     override func configureViewDetails() {
-        view.backgroundColor = AppColor.mainBackground.inUIColorFormat
+        view.backgroundColor = .white
         
         textFieldView.textField.text = ApplicationUserData.nickname
         
@@ -121,7 +117,7 @@ final class ProfileViewController: BaseViewController {
         selectedProfileView.button.addTarget(self, action: #selector(navigateToImageSelection), for: .touchUpInside)
         
         //If there is no input entered, initially button should be dis-enabled
-        completionButton.isEnabled = validation
+        completionButton.isEnabled = viewModel.nicknameValidationResult.value?.0 ?? false
     }
     
     override func viewDidLayoutSubviews() {
@@ -138,70 +134,31 @@ final class ProfileViewController: BaseViewController {
 
 //MARK: TextField Protocol
 extension ProfileViewController: UITextFieldDelegate {
-    
     func textFieldDidChangeSelection(_ textField: UITextField) {
-
-        guard let input = textField.text else { return }
-        
-        if input.contains(/[@|#|$|%]/) {
-            validationLabel.text = "닉네임는 @, #, $, % 는 포함할 수 없어요"
-            validationLabel.textColor = .red
-            validation = false
-            return
-        }
-        
-        if input.contains(/\d/) {
-            validationLabel.text = "닉네임에 숫자는 포함할 수 없어요."
-            validationLabel.textColor = .red
-            validation = false
-            return
-        }
-        
-        if input.count >= 2 && input.count < 10 {
-            validationLabel.text = "사용할 수 있는 닉네임이에요."
-            validationLabel.textColor = AppColor.tintBlue.inUIColorFormat
-            validation = true
-            return
-        } else {
-            validationLabel.text = "2글자 이상 10글자 미만으로 설정해주세요."
-            validationLabel.textColor = .red
-            validation = false
-            return
-        }
+        viewModel.nicknameInput.value = textField.text
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textFieldView.textField.resignFirstResponder()
         return true
     }
-    
-    private func showValidation(message: String) {
-        validationLabel.text = message
-    }
 }
 
 //MARK: Actions
 extension ProfileViewController {
     @objc func registerNickname() {
-        guard let nickname = textFieldView.textField.text else { return }
-        ApplicationUserData.nickname = nickname
-        ApplicationUserData.profileNumber = userData
-        ApplicationUserData.registrationDate = Date()
-        ApplicationUserData.firstLauchState = false
-     
-        // for the case of re-join the app
-        if ApplicationUserData.withdrawalState {
-            ApplicationUserData.withdrawalState = false
-        }
+        // ViewModel's part
+        viewModel.registerButtonRecognizer.value = ()
         
+        // ViewController's part
         let destinationVC = MainTabBarController()
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene, let window = windowScene.windows.first else { return }
         window.rootViewController = destinationVC
-        window.makeKeyAndVisible()        
+        window.makeKeyAndVisible()
     }
     
     @objc func navigateToImageSelection() {
-        let destinationVC = ImageSettingViewController(userData: userData, delegate: self)
+        let destinationVC = ImageSettingViewController(userData: viewModel.userProfileNumber.value, delegate: self)
         navigationController?.pushViewController(destinationVC, animated: true)
     }
     
@@ -210,21 +167,43 @@ extension ProfileViewController {
     }
     
     @objc func modifyProfileInfo() {
-        guard let nickname = textFieldView.textField.text else { return }
-        ApplicationUserData.nickname = nickname
-        ApplicationUserData.profileNumber = userData
+        viewModel.modifyButtonRecognizer.value = ()
         
         //Update MainViewController's mainCard's Data
-        delegate?.upstreamAction(with: userData)
+        delegate?.upstreamAction(with: viewModel.userProfileNumber.value)
         
         dismiss(animated: true)
     }
 }
 
+//MARK: - ReverseValueAssigning
 extension ProfileViewController : ReverseValueAssigning {
     func upstreamAction<T>(with: T) {
         if let value = with as? Int {
-            self.userData = value
+            self.viewModel.userProfileNumber.value = value
+        }
+    }
+}
+
+//MARK: - DataBinding
+extension ProfileViewController {
+    func setDataBindings() {
+        viewModel.userProfileNumber.bind { [weak self] number  in
+            if number == 100 {
+                self?.viewModel.userProfileNumber.value = Int.random(in: 0...11)
+            } else {
+                self?.selectedProfileView.changeImage(userData: number)
+            }
+        }
+        
+        viewModel.nicknameValidationResult.bind { [weak self] result in
+            guard let (canGoNext, validationMessage, labelColor) = result else {
+                return
+            }
+            
+            self?.completionButton.isEnabled = canGoNext
+            self?.validationLabel.textColor = labelColor
+            self?.validationLabel.text = validationMessage
         }
     }
 }
