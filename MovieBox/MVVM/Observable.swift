@@ -8,9 +8,23 @@
 import Foundation
 
 class Observable<T> {
+    enum Observer {
+        case newValueType( (T) -> Void)
+        case newAndOldValueType((T, T)-> Void)
+    }
+    
+    private var observer : Observer?
+    
     var value : T {
         didSet {
-            closure?(value)
+            switch observer {
+            case .newValueType(let closure):
+                closure(value)
+            case .newAndOldValueType(let closure):
+                closure(oldValue, value)
+            case nil:
+                break
+            }
         }
     }
     
@@ -18,14 +32,16 @@ class Observable<T> {
         self.value = value
     }
     
-    var closure : ( (T) -> Void )? = { _ in }
-    
     func bind (_ closure : @escaping ( (T) -> Void ) ) {
-        self.closure = closure
+        self.observer = .newValueType(closure)
         closure(value)
     }
     
     func lazybind(_ closure: @escaping( (T) -> Void)) {
-        self.closure = closure
+        self.observer = .newValueType(closure)
+    }
+    
+    func lazybind (_ closure : @escaping ( (T, T) -> Void ) ) {
+        self.observer = .newAndOldValueType(closure)
     }
 }
