@@ -16,6 +16,7 @@ final class ProfileImageViewCell: BaseCollectionViewCell {
     
     let viewModel = ProfileImageViewCellModel()
     
+    //MARK: - View Components
     lazy var button: UIButton = {
         let button = UIButton()
         getBlueBoldBorder(view: button)
@@ -28,6 +29,7 @@ final class ProfileImageViewCell: BaseCollectionViewCell {
         setDataBindings()
     }
     
+    //MARK: - View Life Cycle
     override func configureViewHierarchy() {
         contentView.addSubview(button)
     }
