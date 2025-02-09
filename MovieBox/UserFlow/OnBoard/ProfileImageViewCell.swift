@@ -13,19 +13,8 @@ final class ProfileImageViewCell: BaseCollectionViewCell {
     static var id : String {
         String(describing: self)
     }
-
-    var isChosen = false {
-        didSet {
-            if isChosen {
-                getBlueBoldBorder(view: button)
-                button.alpha = 1
-            } else {
-                button.layer.borderWidth = AppLineDesign.unselected.rawValue
-                button.layer.borderColor = AppColor.subBackground.inUIColorFormat.cgColor
-                button.alpha = 0.5
-            }
-        }
-    }
+    
+    let viewModel = ProfileImageViewCellModel()
     
     lazy var button: UIButton = {
         let button = UIButton()
@@ -33,6 +22,11 @@ final class ProfileImageViewCell: BaseCollectionViewCell {
         button.layer.masksToBounds = true
         return button
     }()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setDataBindings()
+    }
     
     override func configureViewHierarchy() {
         contentView.addSubview(button)
@@ -44,13 +38,33 @@ final class ProfileImageViewCell: BaseCollectionViewCell {
         }
     }
     
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        button.layer.cornerRadius = button.frame.height / 2
+    }
+}
+
+//MARK: - Actions
+extension ProfileImageViewCell {
     func setCellImage(locationAt: Int) {
         button.setImage(UIImage(named: "profile_\(locationAt)"), for: .normal)
         button.imageView?.contentMode = .scaleAspectFill
     }
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        button.layer.cornerRadius = button.frame.height / 2
+}
+
+//MARK: - DataBindings
+extension ProfileImageViewCell {
+    func setDataBindings() {
+        viewModel.isChosenInput.bind { [weak self] value in
+            guard let button = self?.button else { return }
+            if value {
+                getBlueBoldBorder(view: button)
+                button.alpha = 1
+            } else {
+                button.layer.borderWidth = AppLineDesign.unselected.rawValue
+                button.layer.borderColor = AppColor.subBackground.inUIColorFormat.cgColor
+                button.alpha = 0.5
+            }
+        }
     }
 }

@@ -16,7 +16,12 @@ class ProfileViewModel {
     ]
     
     //MARK: - Observable Properties
-    let userProfileNumber : Observable<Int> = Observable(ApplicationUserData.profileNumber)
+    lazy var userProfileNumber : Observable<Int>  = {
+        let currentlySavedData = ApplicationUserData.profileNumber
+        let validInput = currentlySavedData == 100 ? Int.random(in: 0...11) : currentlySavedData
+        
+        return Observable(validInput)
+    }()
     
     let nicknameInput : Observable<String?> = Observable(nil)
     let nicknameValidationResult: Observable<(Bool, String, UIColor)?> = Observable(nil)

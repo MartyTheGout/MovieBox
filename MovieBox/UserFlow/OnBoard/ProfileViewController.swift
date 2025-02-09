@@ -54,6 +54,7 @@ final class ProfileViewController: BaseViewController {
     }
     
     override func configureNavigationBar() {
+        
         navigationController?.navigationBar.titleTextAttributes = [
             .foregroundColor : AppColor.mainBackground.inUIColorFormat
         ]
@@ -63,7 +64,6 @@ final class ProfileViewController: BaseViewController {
         }
         
         navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
-        
         
         if isModalPresentation {
             navigationItem.leftBarButtonItem = UIBarButtonItem(image: AppSFSymbol.x.image, style: .plain, target: self, action: #selector(goBackToThePreviousView))
@@ -185,7 +185,7 @@ extension ProfileViewController : ReverseValueAssigning {
     }
 }
 
-//MARK: - DataBinding
+//MARK: - Data Bindings
 extension ProfileViewController {
     func setDataBindings() {
         viewModel.userProfileNumber.bind { [weak self] number  in

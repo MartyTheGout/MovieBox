@@ -6,3 +6,8 @@
 //
 
 import Foundation
+
+class ProfileImageViewCellModel {
+    //MARK: - Observable Properties
+    let isChosenInput = Observable(false)
+}
