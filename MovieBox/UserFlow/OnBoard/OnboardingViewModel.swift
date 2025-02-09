@@ -9,12 +9,14 @@ import Foundation
 import UIKit
 
 class OnboardingViewModel {
-    let ioTextDictionary: [String: String]  = [
+    //MARK: - Information Architecture
+    let iaDictionary: [String: String]  = [
         "titleLabel": "Onboarding",
         "subTitleLabel":"당신만의 영화 세상,\n MovieBox를 시작해보세요.",
         "button": "시작하기"
     ]
     
+    //MARK: - Actions
     func getDestinationVC() -> UIViewController {
         ProfileViewController()
     }

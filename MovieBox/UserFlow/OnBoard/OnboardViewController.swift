@@ -25,7 +25,7 @@ final class OnboardViewController: BaseViewController {
         label.font = UIFont(name: "", size: 35)
         label.font = UIFont.systemFont(ofSize: 35, weight: .black)
         label.textColor = AppColor.mainInfoDeliver.inUIColorFormat
-        label.text = viewModel.ioTextDictionary["titleLabel"]
+        label.text = viewModel.iaDictionary["titleLabel"]
         return label
     }()
     
@@ -35,12 +35,12 @@ final class OnboardViewController: BaseViewController {
         label.textColor = AppColor.subInfoDeliver.inUIColorFormat
         label.numberOfLines = 2
         label.textAlignment = .center
-        label.text = viewModel.ioTextDictionary["subTitleLabel"]
+        label.text = viewModel.iaDictionary["subTitleLabel"]
         return label
     }()
     
     lazy var button : UIButton = {
-        guard let buttonTitle = viewModel.ioTextDictionary["button"]  else { return UIButton()}
+        guard let buttonTitle = viewModel.iaDictionary["button"]  else { return UIButton()}
         
         return BlueBorderButton(title: buttonTitle)
     }()
