@@ -9,25 +9,11 @@ import UIKit
 import SnapKit
 
 final class ImageSettingViewController : BaseViewController {
-        
-    var userData : Int {
-        didSet {
-            selectedStatusArray[userData] = true
-            selectedStatusArray[oldValue] = false
-            
-            selectedProfile.changeImage(userData: userData)
-        }
-    }
     
-    var delegate : ReverseValueAssigning
+    var viewModel : ImageSettingViewModel
     
-    var selectedStatusArray = Array(repeating: false, count: 12) {
-        didSet {
-            collectionView.reloadData()
-        }
-    }
-    
-    lazy var selectedProfile = SelectedProfileView(userData: self.userData)
+    //MARK: - View Components
+    lazy var selectedProfile = SelectedProfileView(userData: self.viewModel.userProfileNumber.value)
     
     let collectionView : UICollectionView = {
         let flowLayout = UICollectionViewFlowLayout()
@@ -46,8 +32,9 @@ final class ImageSettingViewController : BaseViewController {
     }()
 
     init(userData:Int, delegate: ReverseValueAssigning) {
-        self.userData = userData
-        self.delegate = delegate
+        self.viewModel = ImageSettingViewModel(profileNumber: userData)
+        self.viewModel.delegate = delegate
+        
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -55,28 +42,36 @@ final class ImageSettingViewController : BaseViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    //MARK: - View Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.register(ProfileImageViewCell.self, forCellWithReuseIdentifier: ProfileImageViewCell.id)
+        
+        setDataBindings()
     }
     
     override func setInitialValue() {
         if let _ = presentingViewController {
-            navigationName = "프로필 이미지 편집"
+            navigationName = viewModel.iaDictionary["modal.title"]
         } else {
-            navigationName = "프로필 이미지 설정"
+            navigationName = viewModel.iaDictionary["nav.push.title"]
         }
-        
-        selectedStatusArray[userData] = true
     }
     
-    override func configureNavigationBar() {
-        super.configureNavigationBar()
+    override func configureNavigationBar() {        
+        navigationController?.navigationBar.titleTextAttributes = [
+            .foregroundColor : AppColor.mainBackground.inUIColorFormat
+        ]
+        
+        if let title = navigationName {
+            navigationItem.title = title
+        }
+        
         navigationItem.backAction = UIAction(title: "", state: .on) { _ in
-            self.delegate.upstreamAction(with: self.userData)
+            self.viewModel.delegate?.upstreamAction(with: self.viewModel.userProfileNumber.value)
             self.navigationController?.popViewController(animated: true)
         }
     }
@@ -108,15 +103,21 @@ final class ImageSettingViewController : BaseViewController {
     }
 }
 
+//MARK: Collection Protocol
 extension ImageSettingViewController : UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        selectedStatusArray.count
+        viewModel.selectionStatusArray.value.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ProfileImageViewCell.id, for: indexPath) as? ProfileImageViewCell {
+            
+            print(indexPath, viewModel.selectionStatusArray.value[indexPath.item] )
+            
             cell.setCellImage(locationAt: indexPath.item)
-            cell.isChosen = selectedStatusArray[indexPath.item]
+            
+            cell.viewModel.isChosenInput.value = viewModel.selectionStatusArray.value[indexPath.item]
+            print(cell.viewModel.isChosenInput.value)
             
             cell.contentView.isUserInteractionEnabled = false // This line of code can prevent button from coverting contentView's clickable area
             return cell
@@ -126,7 +127,20 @@ extension ImageSettingViewController : UICollectionViewDataSource, UICollectionV
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        userData = indexPath.item
+        viewModel.userProfileNumber.value = indexPath.item
     }
 }
 
+//MARK: - Data Bindings
+extension ImageSettingViewController {
+    func setDataBindings () {
+        viewModel.selectionStatusArray.lazybind { [weak self] value in
+            guard let currentSelectedIndex = self?.viewModel.userProfileNumber.value else {
+                return
+            }
+            
+            self?.selectedProfile.changeImage(userData: currentSelectedIndex)
+            self?.collectionView.reloadData()
+        }
+    }
+}
