@@ -57,7 +57,7 @@ extension ProfileImageViewCell {
 //MARK: - DataBindings
 extension ProfileImageViewCell {
     func setDataBindings() {
-        viewModel.isChosenInput.bind { [weak self] value in
+        viewModel.output.isChosenInput.bind { [weak self] value in
             guard let button = self?.button else { return }
             if value {
                 getBlueBoldBorder(view: button)

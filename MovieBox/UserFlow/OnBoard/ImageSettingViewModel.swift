@@ -7,18 +7,29 @@
 
 import Foundation
 
-class ImageSettingViewModel {
+class ImageSettingViewModel: BaseInOut {
+    
+    //MARK: - in-out pattern conformance ( Observable Properties )
+    var input : Input
+    var output : Output
+    
+    struct Input {
+        let userProfileNumber : Observable<Int>
+        
+        init(userProfileNumber: Int) {
+            self.userProfileNumber = Observable(userProfileNumber)
+        }
+    }
+    
+    struct Output {
+        let selectionStatusArray = Observable(Array(repeating: false, count: 12))
+    }
+    
     //MARK: - Information Architecture
     let iaDictionary: [String: String]  = [
         "nav.push.title": "프로필 이미지 설정",
         "modal.title": "프로필 이미지 편집",
     ]
-    
-    //MARK: - Observable Properties
-    let userProfileNumber : Observable<Int>
-    
-    let selectionStatusArray = Observable(Array(repeating: false, count: 12))
-    
     
     //MARK: - Protocol Related
     var delegate : ReverseValueAssigning?
@@ -26,12 +37,19 @@ class ImageSettingViewModel {
     
     //MARK: - ViewModel Initializer : data - closure binding
     init(profileNumber: Int) {
-        self.userProfileNumber = Observable(profileNumber)
-        self.selectionStatusArray.value[profileNumber] = true
         
-        userProfileNumber.lazybind { [weak self] oldValue, newValue in
-            self?.selectionStatusArray.value[newValue] = true
-            self?.selectionStatusArray.value[oldValue] = false
+        self.input = Input(userProfileNumber: profileNumber)
+        self.output = Output()
+        
+        self.output.selectionStatusArray.value[profileNumber] = true
+        
+        transform()
+    }
+    
+    func transform() {
+        input.userProfileNumber.lazybind { [weak self] oldValue, newValue in
+            self?.output.selectionStatusArray.value[newValue] = true
+            self?.output.selectionStatusArray.value[oldValue] = false
         }
     }
 }

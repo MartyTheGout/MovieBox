@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ProfileViewModel {
+class ProfileViewModel: BaseInOut {
     //MARK: - Information Architecture
     let iaDictionary: [String: String] = [
         "nav.push.title": "프로필 설정",
@@ -17,80 +17,94 @@ class ProfileViewModel {
     ]
     
     //MARK: - Observable Properties
-    lazy var userProfileNumber : Observable<Int>  = {
-        let currentlySavedData = ApplicationUserData.profileNumber
-        let validInput = currentlySavedData == 100 ? Int.random(in: 0...11) : currentlySavedData
+    
+    struct Input {
+        let nicknameInput : Observable<String?> = Observable(nil)
+        let mbtiInputRecognizer = Observable(100)
         
-        return Observable(validInput)
-    }()
+        let registerButtonRecognizer : Observable<Void?> = Observable(nil)
+        let modifyButtonRecognizer : Observable<Void?> = Observable(nil)
+    }
     
-    let nicknameInput : Observable<String?> = Observable(nil)
-    let nicknameValidationResult: Observable<(Bool, String, UIColor)?> = Observable(nil)
+    struct Output {
+        lazy var userProfileNumber : Observable<Int>  = {
+            let currentlySavedData = ApplicationUserData.profileNumber
+            let validInput = currentlySavedData == 100 ? Int.random(in: 0...11) : currentlySavedData
+            
+            return Observable(validInput)
+        }()
+        
+        let nicknameValidationResult: Observable<(Bool, String, UIColor)?> = Observable(nil)
+        
+        let mbtiOutput1: Observable<MBTIPartial<MBTI1>> = Observable(MBTIPartial<MBTI1>.none)
+        let mbtiOutput2: Observable<MBTIPartial<MBTI2>> = Observable(MBTIPartial<MBTI2>.none)
+        let mbtiOutput3: Observable<MBTIPartial<MBTI3>> = Observable(MBTIPartial<MBTI3>.none)
+        let mbtiOutput4: Observable<MBTIPartial<MBTI4>> = Observable(MBTIPartial<MBTI4>.none)
+        let mbtiDoneInfo = Observable(false)
+    }
     
-    let registerButtonRecognizer : Observable<Void?> = Observable(nil)
-    let modifyButtonRecognizer : Observable<Void?> = Observable(nil)
-    
-    let mbtiInputRecognizer = Observable(100)
-    
-    let mbtiOutput1: Observable<MBTIPartial<MBTI1>> = Observable(MBTIPartial<MBTI1>.none)
-    let mbtiOutput2: Observable<MBTIPartial<MBTI2>> = Observable(MBTIPartial<MBTI2>.none)
-    let mbtiOutput3: Observable<MBTIPartial<MBTI3>> = Observable(MBTIPartial<MBTI3>.none)
-    let mbtiOutput4: Observable<MBTIPartial<MBTI4>> = Observable(MBTIPartial<MBTI4>.none)
-    
-    let mbtiDoneInfo = Observable(false)
+    var input: Input
+    var output: Output
     
     //MARK: - ViewModel Initializer : data - closure binding
     init () {
-        nicknameInput.bind { [weak self] newValue in
+        input = Input()
+        output = Output()
+        
+        transform()
+    }
+    
+    func transform() {
+        input.nicknameInput.bind { [weak self] newValue in
             guard let newValue else { return }
-            self?.nicknameValidationResult.value = self?.validateNickname(with: newValue)
+            self?.output.nicknameValidationResult.value = self?.validateNickname(with: newValue)
         }
         
-        registerButtonRecognizer.bind { [weak self] _ in
+        input.registerButtonRecognizer.bind { [weak self] _ in
             self?.registerUserData()
         }
         
-        modifyButtonRecognizer.bind { [weak self] _ in
+        input.modifyButtonRecognizer.bind { [weak self] _ in
             self?.modifyUserData()
         }
         
-        mbtiInputRecognizer.bind { [weak self] value in
+        input.mbtiInputRecognizer.bind { [weak self] value in
             let locationInCategory = value % 2
             
             // 첫 설계에서 각각이 다른 타입을 가지게 되게끔 하였더니, 코드 재사용이 어려워졌다.
             switch value {
             case 0...1 :
-                if self?.mbtiOutput1.value == .option(MBTI1(rawValue: locationInCategory)!) {
-                    self?.mbtiOutput1.value = .none
+                if self?.output.mbtiOutput1.value == .option(MBTI1(rawValue: locationInCategory)!) {
+                    self?.output.mbtiOutput1.value = .none
                     return
                 }
                 
-                self?.mbtiOutput1.value = .option(MBTI1(rawValue: locationInCategory)!)
+                self?.output.mbtiOutput1.value = .option(MBTI1(rawValue: locationInCategory)!)
                 return
                 
             case 2...3 :
-                if self?.mbtiOutput2.value == .option(MBTI2(rawValue: locationInCategory)!) {
-                    self?.mbtiOutput2.value = .none
+                if self?.output.mbtiOutput2.value == .option(MBTI2(rawValue: locationInCategory)!) {
+                    self?.output.mbtiOutput2.value = .none
                     return
                 }
                 
-                self?.mbtiOutput2.value = .option(MBTI2(rawValue: locationInCategory)!)
+                self?.output.mbtiOutput2.value = .option(MBTI2(rawValue: locationInCategory)!)
                 return
             case 4...5 :
-                if self?.mbtiOutput3.value == .option(MBTI3(rawValue: locationInCategory)!) {
-                    self?.mbtiOutput3.value = .none
+                if self?.output.mbtiOutput3.value == .option(MBTI3(rawValue: locationInCategory)!) {
+                    self?.output.mbtiOutput3.value = .none
                     return
                 }
                 
-                self?.mbtiOutput3.value = .option(MBTI3(rawValue: locationInCategory)!)
+                self?.output.mbtiOutput3.value = .option(MBTI3(rawValue: locationInCategory)!)
                 return
             case 6...7 :
-                if self?.mbtiOutput4.value == .option(MBTI4(rawValue: locationInCategory)!) {
-                    self?.mbtiOutput4.value = .none
+                if self?.output.mbtiOutput4.value == .option(MBTI4(rawValue: locationInCategory)!) {
+                    self?.output.mbtiOutput4.value = .none
                     return
                 }
                 
-                self?.mbtiOutput4.value = .option(MBTI4(rawValue: locationInCategory)!)
+                self?.output.mbtiOutput4.value = .option(MBTI4(rawValue: locationInCategory)!)
                 return
             default : return
             }
@@ -118,9 +132,9 @@ class ProfileViewModel {
     }
     
     func registerUserData() {
-        guard let nickname = self.nicknameInput.value else { return }
+        guard let nickname = self.input.nicknameInput.value else { return }
         ApplicationUserData.nickname = nickname
-        ApplicationUserData.profileNumber = self.userProfileNumber.value
+        ApplicationUserData.profileNumber = self.output.userProfileNumber.value
         ApplicationUserData.registrationDate = Date()
         ApplicationUserData.firstLauchState = false
         
@@ -131,20 +145,20 @@ class ProfileViewModel {
     }
     
     func modifyUserData() {
-        guard let nickname = self.nicknameInput.value else { return }
+        guard let nickname = self.input.nicknameInput.value else { return }
         ApplicationUserData.nickname = nickname
-        ApplicationUserData.profileNumber = self.userProfileNumber.value
+        ApplicationUserData.profileNumber = self.output.userProfileNumber.value
     }
     
     func checkMBTIAllFilled() {
         let mbti: [Int] = [
-            mbtiOutput1.value.getRawInt(),
-            mbtiOutput2.value.getRawInt(),
-            mbtiOutput3.value.getRawInt(),
-            mbtiOutput4.value.getRawInt()
+            output.mbtiOutput1.value.getRawInt(),
+            output.mbtiOutput2.value.getRawInt(),
+            output.mbtiOutput3.value.getRawInt(),
+            output.mbtiOutput4.value.getRawInt()
         ]
         
-        mbtiDoneInfo.value = mbti.allSatisfy { $0 != 2 }
+        output.mbtiDoneInfo.value = mbti.allSatisfy { $0 != 2 }
     }
 }
 

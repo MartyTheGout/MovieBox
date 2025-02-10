@@ -8,7 +8,12 @@
 import Foundation
 import UIKit
 
-class OnboardingViewModel {
+class OnboardingViewModel: BaseInOut {
+    //MARK: - in-out pattern conformance ( Observable Properties )
+    struct Input {}
+    struct Output {}
+    func transform() {}
+    
     //MARK: - Information Architecture
     let iaDictionary: [String: String]  = [
         "titleLabel": "Onboarding",

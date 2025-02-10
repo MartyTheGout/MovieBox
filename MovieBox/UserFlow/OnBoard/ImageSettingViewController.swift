@@ -13,7 +13,7 @@ final class ImageSettingViewController : BaseViewController {
     var viewModel : ImageSettingViewModel
     
     //MARK: - View Components
-    lazy var selectedProfile = SelectedProfileView(userData: self.viewModel.userProfileNumber.value)
+    lazy var selectedProfile = SelectedProfileView(userData: self.viewModel.input.userProfileNumber.value)
     
     let collectionView : UICollectionView = {
         let flowLayout = UICollectionViewFlowLayout()
@@ -71,7 +71,7 @@ final class ImageSettingViewController : BaseViewController {
         }
         
         navigationItem.backAction = UIAction(title: "", state: .on) { _ in
-            self.viewModel.delegate?.upstreamAction(with: self.viewModel.userProfileNumber.value)
+            self.viewModel.delegate?.upstreamAction(with: self.viewModel.input.userProfileNumber.value)
             self.navigationController?.popViewController(animated: true)
         }
     }
@@ -106,18 +106,18 @@ final class ImageSettingViewController : BaseViewController {
 //MARK: Collection Protocol
 extension ImageSettingViewController : UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        viewModel.selectionStatusArray.value.count
+        viewModel.output.selectionStatusArray.value.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ProfileImageViewCell.id, for: indexPath) as? ProfileImageViewCell {
             
-            print(indexPath, viewModel.selectionStatusArray.value[indexPath.item] )
+            print(indexPath, viewModel.output.selectionStatusArray.value[indexPath.item] )
             
             cell.setCellImage(locationAt: indexPath.item)
             
-            cell.viewModel.isChosenInput.value = viewModel.selectionStatusArray.value[indexPath.item]
-            print(cell.viewModel.isChosenInput.value)
+            cell.viewModel.output.isChosenInput.value = viewModel.output.selectionStatusArray.value[indexPath.item]
+            print(cell.viewModel.output.isChosenInput.value)
             
             cell.contentView.isUserInteractionEnabled = false // This line of code can prevent button from coverting contentView's clickable area
             return cell
@@ -127,15 +127,15 @@ extension ImageSettingViewController : UICollectionViewDataSource, UICollectionV
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        viewModel.userProfileNumber.value = indexPath.item
+        viewModel.input.userProfileNumber.value = indexPath.item
     }
 }
 
 //MARK: - Data Bindings
 extension ImageSettingViewController {
     func setDataBindings () {
-        viewModel.selectionStatusArray.lazybind { [weak self] value in
-            guard let currentSelectedIndex = self?.viewModel.userProfileNumber.value else {
+        viewModel.output.selectionStatusArray.lazybind { [weak self] value in
+            guard let currentSelectedIndex = self?.viewModel.input.userProfileNumber.value else {
                 return
             }
             

@@ -26,7 +26,7 @@ final class ProfileViewController: BaseViewController {
     }
     
     //MARK: View Components
-    lazy var selectedProfileView = SelectedProfileView(userData: self.viewModel.userProfileNumber.value)
+    lazy var selectedProfileView = SelectedProfileView(userData: self.viewModel.output.userProfileNumber.value)
     
     let textFieldView = NameTextFieldView()
     let validationLabel : UILabel = {
@@ -150,7 +150,7 @@ final class ProfileViewController: BaseViewController {
         selectedProfileView.button.addTarget(self, action: #selector(navigateToImageSelection), for: .touchUpInside)
         
         //If there is no input entered, initially button should be dis-enabled
-        completionButton.isEnabled =  (viewModel.nicknameValidationResult.value?.0 ?? false) && (viewModel.mbtiDoneInfo.value)
+        completionButton.isEnabled =  (viewModel.output.nicknameValidationResult.value?.0 ?? false) && (viewModel.output.mbtiDoneInfo.value)
         
         mbtiCategory1.setText(mbtiCategory: MBTI1.allCases.map { $0.getName()})
         mbtiCategory2.setText(mbtiCategory: MBTI2.allCases.map { $0.getName()})
@@ -185,7 +185,7 @@ final class ProfileViewController: BaseViewController {
 //MARK: TextField Protocol
 extension ProfileViewController: UITextFieldDelegate {
     func textFieldDidChangeSelection(_ textField: UITextField) {
-        viewModel.nicknameInput.value = textField.text
+        viewModel.input.nicknameInput.value = textField.text
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -198,7 +198,7 @@ extension ProfileViewController: UITextFieldDelegate {
 extension ProfileViewController {
     @objc func registerNickname() {
         // ViewModel's part
-        viewModel.registerButtonRecognizer.value = ()
+        viewModel.input.registerButtonRecognizer.value = ()
         
         // ViewController's part
         let destinationVC = MainTabBarController()
@@ -208,7 +208,7 @@ extension ProfileViewController {
     }
     
     @objc func navigateToImageSelection() {
-        let destinationVC = ImageSettingViewController(userData: viewModel.userProfileNumber.value, delegate: self)
+        let destinationVC = ImageSettingViewController(userData: viewModel.output.userProfileNumber.value, delegate: self)
         navigationController?.pushViewController(destinationVC, animated: true)
     }
     
@@ -217,16 +217,16 @@ extension ProfileViewController {
     }
     
     @objc func modifyProfileInfo() {
-        viewModel.modifyButtonRecognizer.value = ()
+        viewModel.input.modifyButtonRecognizer.value = ()
         
         //Update MainViewController's mainCard's Data
-        delegate?.upstreamAction(with: viewModel.userProfileNumber.value)
+        delegate?.upstreamAction(with: viewModel.output.userProfileNumber.value)
         
         dismiss(animated: true)
     }
     
     @objc func selectMBTIPart(_ sender: UIButton) {
-        viewModel.mbtiInputRecognizer.value = sender.tag
+        viewModel.input.mbtiInputRecognizer.value = sender.tag
     }
 }
 
@@ -234,7 +234,7 @@ extension ProfileViewController {
 extension ProfileViewController : ReverseValueAssigning {
     func upstreamAction<T>(with: T) {
         if let value = with as? Int {
-            self.viewModel.userProfileNumber.value = value
+            self.viewModel.output.userProfileNumber.value = value
         }
     }
 }
@@ -242,15 +242,15 @@ extension ProfileViewController : ReverseValueAssigning {
 //MARK: - Data Bindings
 extension ProfileViewController {
     func setDataBindings() {
-        viewModel.userProfileNumber.bind { [weak self] number  in
+        viewModel.output.userProfileNumber.bind { [weak self] number  in
             if number == 100 {
-                self?.viewModel.userProfileNumber.value = Int.random(in: 0...11)
+                self?.viewModel.output.userProfileNumber.value = Int.random(in: 0...11)
             } else {
                 self?.selectedProfileView.changeImage(userData: number)
             }
         }
         
-        viewModel.nicknameValidationResult.bind { [weak self] result in
+        viewModel.output.nicknameValidationResult.bind { [weak self] result in
             guard let (canGoNext, validationMessage, labelColor) = result else {
                 return
             }
@@ -262,33 +262,33 @@ extension ProfileViewController {
         }
         
         //TODO: 이걸 빼먹으면, 글자가 들어가지 않는다. + 반복되는 코드를 재사용 가능한 형태로 리팩토링할 필요가 있다.
-        viewModel.mbtiOutput1.bind { [weak self] value in
+        viewModel.output.mbtiOutput1.bind { [weak self] value in
             let chosenPart: Int? = value == .none ? nil : value.getRawInt()
             self?.mbtiCategory1.setChosenPart(locationAt: chosenPart )
             
             //TODO: intput-bind 에서 mbti입력을 확인하면, 호출 사이클이 이곳보다 느려서 제대로 된 검사가 되지 않는다.
 //            self?.completionButton.isEnabled = (self?.viewModel.nicknameValidationResult.value?.0 ?? false) && (self?.viewModel.mbtiDoneInfo.value)!
             
-            self?.completionButton.isEnabled = (self?.viewModel.nicknameValidationResult.value?.0 ?? false) && (self?.checkAllMBTIFilled())!
+            self?.completionButton.isEnabled = (self?.viewModel.output.nicknameValidationResult.value?.0 ?? false) && (self?.checkAllMBTIFilled())!
             
         }
         
-        viewModel.mbtiOutput2.bind { [weak self] value in
+        viewModel.output.mbtiOutput2.bind { [weak self] value in
             let chosenPart: Int? = value == .none ? nil : value.getRawInt()
             self?.mbtiCategory2.setChosenPart(locationAt: chosenPart )
-            self?.completionButton.isEnabled = (self?.viewModel.nicknameValidationResult.value?.0 ?? false) && (self?.checkAllMBTIFilled())!
+            self?.completionButton.isEnabled = (self?.viewModel.output.nicknameValidationResult.value?.0 ?? false) && (self?.checkAllMBTIFilled())!
         }
         
-        viewModel.mbtiOutput3.bind { [weak self] value in
+        viewModel.output.mbtiOutput3.bind { [weak self] value in
             let chosenPart: Int? = value == .none ? nil : value.getRawInt()
             self?.mbtiCategory3.setChosenPart(locationAt: chosenPart )
-            self?.completionButton.isEnabled = (self?.viewModel.nicknameValidationResult.value?.0 ?? false) && (self?.checkAllMBTIFilled())!
+            self?.completionButton.isEnabled = (self?.viewModel.output.nicknameValidationResult.value?.0 ?? false) && (self?.checkAllMBTIFilled())!
         }
         
-        viewModel.mbtiOutput4.bind { [weak self] value in
+        viewModel.output.mbtiOutput4.bind { [weak self] value in
             let chosenPart: Int? = value == .none ? nil : value.getRawInt()
             self?.mbtiCategory4.setChosenPart(locationAt: chosenPart )
-            self?.completionButton.isEnabled = (self?.viewModel.nicknameValidationResult.value?.0 ?? false) && (self?.checkAllMBTIFilled())!
+            self?.completionButton.isEnabled = (self?.viewModel.output.nicknameValidationResult.value?.0 ?? false) && (self?.checkAllMBTIFilled())!
         }
         
     }
@@ -296,10 +296,10 @@ extension ProfileViewController {
     // TODO: 추후에 수정이 필요하다.(viewModel단으로 넘겨야한다)
     func checkAllMBTIFilled() -> Bool {
         let mbti: [Int] = [
-            viewModel.mbtiOutput1.value.getRawInt(),
-            viewModel.mbtiOutput2.value.getRawInt(),
-            viewModel.mbtiOutput3.value.getRawInt(),
-            viewModel.mbtiOutput4.value.getRawInt()
+            viewModel.output.mbtiOutput1.value.getRawInt(),
+            viewModel.output.mbtiOutput2.value.getRawInt(),
+            viewModel.output.mbtiOutput3.value.getRawInt(),
+            viewModel.output.mbtiOutput4.value.getRawInt()
         ]
         
         return mbti.allSatisfy { $0 != 2 }
