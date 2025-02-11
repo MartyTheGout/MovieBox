@@ -10,6 +10,13 @@ import SnapKit
 
 final class GenreInfoView: BaseView {
     
+    let viewModel = GenreInfoViewModel()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setDataBindings()
+    }
+    
     let label = {
         let label = UILabel()
         label.textColor = AppColor.mainInfoDeliver.inUIColorFormat
@@ -28,12 +35,17 @@ final class GenreInfoView: BaseView {
         }
     }
     
-    func fillupData(text : String) {
-        label.text = text
-    }
-    
     override func layoutSubviews() {
         super.layoutSubviews()
         layer.cornerRadius = 5
+    }
+}
+
+//MARK: - Data Bindings
+extension GenreInfoView {
+    func setDataBindings() {
+        viewModel.output.genreText.bind { [weak self] text in
+            self?.label.text = text
+        }
     }
 }

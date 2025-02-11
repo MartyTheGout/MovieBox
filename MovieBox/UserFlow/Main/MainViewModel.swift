@@ -33,7 +33,7 @@ class MainViewModel : BaseInOut {
         input.movieGetRequest.bind { [weak self] _ in
             self?.getTrendMovie()
         }
-        input.searchHistoryDeleteRequest.bind { [weak self] value in
+        input.searchHistoryDeleteRequest.lazybind { [weak self] value in
             self?.deleteSearchHistory(of: value)
         }
     }

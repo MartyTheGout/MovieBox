@@ -10,36 +10,8 @@ import SkeletonView
 import Alamofire
 
 final class SearchViewController: BaseViewController {
-    
-    var currentKeyword : String? {
-        didSet {
-            guard let keyword = currentKeyword else { return }
-            if searchBar.text == currentKeyword {
-                
-            } else {
-                // when being currentKeyword set from outside
-                searchBar.text = keyword
-                executeSearchEvent(queryString: keyword)
-            }
-        }
-    }
-    
-    var isFirstSearch = false // for search with keyword entrance
-    var page = 1
-    var availableNextFetching = true
-    
-    var data: [Movie] = [] {
-        didSet {
-            if !data.isEmpty {
-                tableView.stopSkeletonAnimation()
-                tableView.hideSkeleton()
-            }
-            
-            tableView.reloadData()
-            handleSearchResultOnView()
-        }
-    }
-    
+    let viewModel = SearchViewModel()
+   
     //MARK: View Components
     let searchBar : UISearchBar = {
         let searchBar = UISearchBar()
@@ -76,7 +48,7 @@ final class SearchViewController: BaseViewController {
     }()
     
     
-    //MARK: ViewController LifeCycle
+    //MARK: - ViewController LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -87,13 +59,14 @@ final class SearchViewController: BaseViewController {
         tableView.prefetchDataSource = self
         tableView.register(SearchTableViewCell.self, forCellReuseIdentifier: SearchTableViewCell.id)
         
-        if let keyword = currentKeyword {
-            searchBar.text = keyword
+        if let _ = viewModel.input.searchText.value {
         } else {
             searchBar.searchTextField.becomeFirstResponder()
         }
         
         noResultView.isHidden = true
+        
+        setDataBindings()
     }
     
     override func setInitialValue() {
@@ -136,7 +109,9 @@ final class SearchViewController: BaseViewController {
     }
     
     private func handleSearchResultOnView() {
-        if data.isEmpty {
+        guard let movieData = viewModel.output.movieData.value else { return }
+        
+        if movieData.isEmpty {
             noResultView.isHidden = false
         } else {
             noResultView.isHidden = true
@@ -155,7 +130,8 @@ extension SearchViewController : SkeletonTableViewDataSource {
     }
     
     func collectionSkeletonView(_ collectionSkeletonView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return data.count
+        guard let movieData = viewModel.output.movieData.value else { return 0 }
+        return movieData.count
     }
     
     func collectionSkeletonView(_ skeletonView: UITableView, cellIdentifierForRowAt indexPath: IndexPath) -> ReusableCellIdentifier {
@@ -163,13 +139,16 @@ extension SearchViewController : SkeletonTableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return data.count
+        guard let movieData = viewModel.output.movieData.value else { return 0 }
+        return movieData.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if let cell = tableView.dequeueReusableCell(withIdentifier: SearchTableViewCell.id) as? SearchTableViewCell {
-            cell.searchKeyword = currentKeyword
-            cell.fillUpData(with: data[indexPath.row])
+            guard let movieData = viewModel.output.movieData.value else { return UITableViewCell() }
+            
+            cell.viewModel.input.searchKeyword.value = viewModel.input.searchText.value
+            cell.viewModel.input.movie.value = movieData[indexPath.row]
             return cell
         }
         return UITableViewCell()
@@ -181,7 +160,10 @@ extension SearchViewController : SkeletonTableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let movie = data[indexPath.row]
+        
+        guard let movieData = viewModel.output.movieData.value else { return }
+        
+        let movie = movieData[indexPath.row]
         let destinationVC = DetailViewController()
         
         //upStreamValueChange is for reflecting like-status change in DetailVC to SearchVC's tableView-row
@@ -198,11 +180,10 @@ extension SearchViewController : SkeletonTableViewDataSource {
 extension SearchViewController : UITableViewDataSourcePrefetching {
     func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
         for index in indexPaths {
-            if index.item > data.count - 5 && availableNextFetching {
-                guard let keyword = currentKeyword else { return }
-                page += 1
-                executeSearchEvent(queryString: keyword)
-                availableNextFetching = false // This line prevent from multiple request calling, which means, just one next request call per 20 data counts
+            guard let movieData = viewModel.output.movieData.value else { return }
+            
+            if index.item > movieData.count - 5 && viewModel.availableNextFetching {
+                viewModel.input.additionalSearchRequest.value = ()
             }
         }
     }
@@ -213,47 +194,42 @@ extension SearchViewController : UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         guard let keyword = searchBar.text else { return }
         
-        executeSearchEvent(queryString: keyword)
+        // Business Logic
+        viewModel.input.searchText.value = keyword
         
-        if !ApplicationUserData.recentlyUsedKeyword.contains(keyword) {
-            ApplicationUserData.recentlyUsedKeyword.append(keyword)
-        }
-        
+        // View
         searchBar.resignFirstResponder()
         view.endEditing(true)
     }
 }
 
-//MARK: Actions
+//MARK: - Data Bindings
 extension SearchViewController {
-    func executeSearchEvent(queryString: String) {
-        if queryString != currentKeyword {
-            page = 1
-        }
-        
-        NetworkManager.shared.callRequest(apiKind: .search(query: queryString, page: page)) { (response: Result<SearchResponse, AFError>) -> Void in
-            switch response {
-            case .success(let value):
-                if queryString == self.currentKeyword {
-                    self.data.append(contentsOf: value.results)
-                } else {
-                    self.data = value.results
-                    if !self.data.isEmpty {
-                        self.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
-                        self.page = 1
+    func setDataBindings() {
+        viewModel.output.movieData.lazybind { [weak self] oldData, newData in
+            
+            guard let newData else { return }
+            
+            if !newData.isEmpty {
+                self?.tableView.stopSkeletonAnimation()
+                self?.tableView.hideSkeleton()
+                
+                if newData.count <= 20 {
+                    if self?.tableView.numberOfSections ?? 0 > 0 {
+                        DispatchQueue.main.async {
+                            self?.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true) // WHY? 이전 코드에서는 비동기 처리할 필요가 없었다.
+                        }
+                    }
+                    
+                    if self?.searchBar.text == "" {
+                        self?.searchBar.text = self?.viewModel.input.searchText.value
                     }
                 }
                 
-                self.currentKeyword = queryString
-                
-                if self.page < value.totalPages {
-                    self.availableNextFetching = true
-                } else {
-                    self.availableNextFetching = false
-                }
-            case .failure(let error):
-                dump(error)
+                self?.tableView.reloadData()
             }
+            
+            self?.handleSearchResultOnView()
         }
     }
 }

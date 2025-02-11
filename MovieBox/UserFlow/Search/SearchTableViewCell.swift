@@ -14,8 +14,7 @@ final class SearchTableViewCell: BaseTableViewCell {
     
     static var id : String { String (describing: self) }
     
-    var movieId: Int?
-    var searchKeyword: String?
+    let viewModel = SearchTableCellModel()
     
     //MARK: View Components
     let mainImage : UIImageView = {
@@ -57,6 +56,11 @@ final class SearchTableViewCell: BaseTableViewCell {
     }()
     
     //MARK: View Controller Life Cycle
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        setDataBindings()
+    }
+    
     override func configureViewHierarchy() {
         [mainImage, titleLabel, dateLabel, genreStack, likeButton].forEach{
             contentView.addSubview($0)
@@ -117,86 +121,14 @@ final class SearchTableViewCell: BaseTableViewCell {
 }
 
 //MARK: IncludingLike Protocol
-extension SearchTableViewCell: IncludingLike {
+extension SearchTableViewCell {
     @objc func updateLikeStatus() {
-        guard let id = movieId else {
-            print("[not-proper assignment] id is not set properly")
-            return
-        }
-        
-        if let idLocation = ApplicationUserData.likedIdArray.firstIndex(of: id) {
-            ApplicationUserData.likedIdArray.remove(at: idLocation)
-        } else {
-            ApplicationUserData.likedIdArray.append(id)
-        }
-        
-        showLikeStatus(id: id)
-    }
-    
-    func showLikeStatus(id: Int) {
-        let image = ApplicationUserData.likedIdArray.contains(id) ? AppSFSymbol.blackHeart.image : AppSFSymbol.whiteHeart.image
-        likeButton.setImage(image, for: .normal)
+        viewModel.input.likeUpdate.value = ()
     }
 }
 
 //MARK: Actions
 extension SearchTableViewCell {
-    func fillUpData(with data: Movie) {
-        movieId = data.id
-        showLikeStatus(id: data.id)
-        
-        if let posterPath = data.posterPath, !posterPath.isEmpty {
-            mainImage.kf.setImage(with: URL(string: Datasource.baseImageURL.rawValue + posterPath)!) { _ in
-                self.mainImage.stopSkeletonAnimation()
-                self.mainImage.hideSkeleton()
-                self.mainImage.layer.cornerRadius = 10
-            }
-        } else {
-            mainImage.image = UIImage(systemName: "film")
-            mainImage.tintColor = AppColor.subBackground.inUIColorFormat
-            mainImage.contentMode = .scaleAspectFit
-            
-            mainImage.stopSkeletonAnimation()
-            mainImage.hideSkeleton()
-            mainImage.layer.cornerRadius = 10
-        }
-        
-        if let keyword = searchKeyword , let _ = data.title?.contains(keyword) {
-            if let textValue = data.title {
-                titleLabel.attributedText = getHighlightedString(originalText: textValue, keyword: keyword)
-            }
-            
-        } else {
-            titleLabel.text = data.title
-        }
-        titleLabel.numberOfLines = 2
-        
-        dateLabel.text = data.releaseDate
-        
-        // Initialization of genreStack's Subviews
-        genreStack.subviews.forEach {
-            $0.removeFromSuperview()
-        }
-        
-        let availableGenre = 2
-        
-        guard let genreIDS = data.genreIDS else { return }
-        
-        for (index, genre) in genreIDS.enumerated() {
-            
-            // Application Spec: visible genre is up to 2 items.
-            if index >= availableGenre { return }
-            
-            let genreInKorean = Genre(rawValue: genre)?.koreanName
-            
-            let genreView = GenreInfoView()
-            genreView.backgroundColor = AppColor.cardBackground.inUIColorFormat
-            genreView.fillupData(text: genreInKorean!)
-            
-            genreStack.addArrangedSubview(genreView)
-        }
-    }
-    
     private func getHighlightedString(originalText: String, keyword: String, mutableString: NSMutableAttributedString = NSMutableAttributedString(string: "")) -> NSAttributedString {
         let mutableString = mutableString
         
@@ -237,6 +169,65 @@ extension SearchTableViewCell {
             mutableString.append(attributedStringBefore)
             
             return getHighlightedString(originalText: String(originalText[keywordRange.lowerBound..<originalText.endIndex]), keyword: keyword, mutableString: mutableString)
+        }
+    }
+}
+
+//MARK: - Data Bindings
+extension SearchTableViewCell {
+    func setDataBindings() {
+        viewModel.output.title.bind { [weak self] title in
+            if let keyword = self?.viewModel.input.searchKeyword.value ,let textValue = title, textValue.contains(keyword) {
+                self?.titleLabel.attributedText = self?.getHighlightedString(originalText: textValue, keyword: keyword)
+            } else {
+                self?.titleLabel.text = title
+            }
+            
+            self?.titleLabel.numberOfLines = 2
+        }
+        
+        viewModel.output.posterPath.bind { [weak self] posterPath in
+            if let posterPath, !posterPath.isEmpty {
+                self?.mainImage.kf.setImage(with: URL(string: Datasource.baseImageURL.rawValue + posterPath)!) { _ in
+                    self?.mainImage.stopSkeletonAnimation()
+                    self?.mainImage.hideSkeleton()
+                    self?.mainImage.layer.cornerRadius = 10
+                }
+            } else {
+                self?.mainImage.image = UIImage(systemName: "film")
+                self?.mainImage.tintColor = AppColor.subBackground.inUIColorFormat
+                self?.mainImage.contentMode = .scaleAspectFit
+                
+                self?.mainImage.stopSkeletonAnimation()
+                self?.mainImage.hideSkeleton()
+                self?.mainImage.layer.cornerRadius = 10
+            }
+        }
+        
+        viewModel.output.releaseDate.bind { [weak self] releaseDate in
+            self?.dateLabel.text = releaseDate
+        }
+        
+        viewModel.output.genreIDS.bind { [weak self] genreIDS in
+            guard let genreIDS else { return }
+            
+            self?.genreStack.subviews.forEach {
+                $0.removeFromSuperview()
+            }
+            
+            for genre in genreIDS {
+                let genreInKorean = Genre(rawValue: genre)?.koreanName
+                let genreView = GenreInfoView()
+                genreView.backgroundColor = AppColor.cardBackground.inUIColorFormat
+                genreView.viewModel.output.genreText.value = genreInKorean!
+                
+                self?.genreStack.addArrangedSubview(genreView)
+            }
+        }
+        
+        viewModel.output.likeStatus.bind { [weak self] likeStatus in
+            let image = likeStatus ? AppSFSymbol.blackHeart.image : AppSFSymbol.whiteHeart.image
+            self?.likeButton.setImage(image, for: .normal)
         }
     }
 }
