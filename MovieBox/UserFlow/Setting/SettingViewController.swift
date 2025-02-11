@@ -63,7 +63,7 @@ class SettingViewController: BaseViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        mainCard.refreshViewData()
+        mainCard.viewModel.input.refreshRequest.value = ()
     }
     
     override func viewDidLayoutSubviews() {
@@ -103,7 +103,7 @@ extension SettingViewController: ReverseValueAssigning {
     // for like button pressed from collectionviewcell
     func upstreamAction<T>(with: T) {
         if let _ = with as? Int {
-            mainCard.refreshViewData()
+            mainCard.viewModel.input.refreshRequest.value = ()
         }
         
         if let _ = with as? UIColor {

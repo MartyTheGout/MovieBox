@@ -185,7 +185,7 @@ final class MainViewController: BaseViewController {
         if mainCard.likeCount != ApplicationUserData.likedIdArray.count {
             collectionView.reloadData()
         }
-        mainCard.refreshViewData()
+        mainCard.viewModel.input.refreshRequest.value = ()
         view.backgroundColor = AppColor.mainBackground.inUIColorFormat
     }
     
@@ -246,7 +246,7 @@ extension MainViewController: ReverseValueAssigning {
     // for like button pressed from collectionviewcell
     func upstreamAction<T>(with: T) {
         if let _ = with as? Int {
-            mainCard.refreshViewData()
+            mainCard.viewModel.input.refreshRequest.value = ()
         }
         
         if let _ = with as? UIColor {

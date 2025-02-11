@@ -10,12 +10,11 @@ import SnapKit
 
 class MainCardView: BaseView {
     
-    var profileImageAsset = ApplicationUserData.profileNumber
+    let viewModel = MainCardViewModel()
     
     //MARK: View Components
     lazy var imageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: "profile_\(profileImageAsset)")
         imageView.contentMode = .scaleAspectFill
         imageView.backgroundColor = AppColor.mainBackground.inUIColorFormat
         imageView.clipsToBounds = true
@@ -75,6 +74,11 @@ class MainCardView: BaseView {
     }()
     
     //MARK: View Controller Life Cycle
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setDataBindings()
+    }
+    
     override func configureViewHierarchy() {
         [imageView, verticalStack, chevron, likeInfoButton].forEach { addSubview($0) }
         [nicknameLabel, dateLabel].forEach { verticalStack.addArrangedSubview($0)}
@@ -106,7 +110,6 @@ class MainCardView: BaseView {
     
     override func configureViewDetails() {
         backgroundColor = AppColor.cardBackground.inUIColorFormat
-        dateLabel.text = convertDateToFormattedData(date: date)
     }
     
     override func layoutSubviews() {
@@ -117,41 +120,30 @@ class MainCardView: BaseView {
     }
 }
 
-//MARK: Actions
+//MARK: Data Bindings
 extension MainCardView {
-    func refreshViewData() {
-        if nickname != ApplicationUserData.nickname {
-            nickname = ApplicationUserData.nickname
-            nicknameLabel.text = nickname
+    func setDataBindings() {
+        viewModel.output.profileImageAsset.bind{ [weak self] value in
+            self?.imageView.image = UIImage(named: "profile_\(value)")
         }
         
-        if date != ApplicationUserData.registrationDate {
-            date = ApplicationUserData.registrationDate
-            dateLabel.text = convertDateToFormattedData(date: date)
-        }
-        
-        if likeCount != ApplicationUserData.likedIdArray.count {
-            likeCount = ApplicationUserData.likedIdArray.count
-            
+        viewModel.output.likeCount.bind{ [weak self] value in
             let attributedString = NSAttributedString(
-                string: "\(likeCount)개의 무비박스 보관 중",
+                string: "\(value)개의 무비박스 보관 중",
                 attributes: [
                     .foregroundColor: AppColor.mainInfoDeliver.inUIColorFormat,
                     .font: UIFont.systemFont(ofSize: 16, weight: .bold)
                 ])
-            likeInfoButton.setAttributedTitle(attributedString, for: .normal)
+            self?.likeInfoButton.setAttributedTitle(attributedString, for: .normal)
         }
         
-        if profileImageAsset != ApplicationUserData.profileNumber {
-            profileImageAsset = ApplicationUserData.profileNumber
-            imageView.image = UIImage(named: "profile_\(profileImageAsset)")
+        viewModel.output.date.bind{ [weak self] value in
+            let date = self?.viewModel.convertDateToFormattedData(date: value)
+            self?.dateLabel.text = date
         }
-    }
-    
-    private func convertDateToFormattedData (date: Date) -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yy.MM.dd 가입"
         
-        return dateFormatter.string(from: date)
+        viewModel.output.nickname.bind{ [weak self] value in
+            self?.nicknameLabel.text = value
+        }
     }
 }
