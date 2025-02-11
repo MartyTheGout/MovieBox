@@ -224,9 +224,8 @@ extension MainViewController: SkeletonCollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MainMovieCollectionCell.id, for: indexPath) as? MainMovieCollectionCell {
-            cell.fillUpData(movie: viewModel.output.todayMovieList.value[indexPath.item])
             cell.delegate = self
-            
+            cell.viewModel.output.movie.value = viewModel.output.todayMovieList.value[indexPath.item]
             return cell
         }
         return UICollectionViewCell()
@@ -245,7 +244,7 @@ extension MainViewController: SkeletonCollectionViewDataSource {
 extension MainViewController: ReverseValueAssigning {
     // for like button pressed from collectionviewcell
     func upstreamAction<T>(with: T) {
-        if let _ = with as? Int {
+        if let _ = with as? Bool {
             mainCard.viewModel.input.refreshRequest.value = ()
         }
         

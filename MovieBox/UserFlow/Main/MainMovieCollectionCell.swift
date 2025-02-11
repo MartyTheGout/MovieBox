@@ -10,16 +10,16 @@ import SnapKit
 import Kingfisher
 import SkeletonView
 
-final class MainMovieCollectionCell: BaseCollectionViewCell, IncludingLike {
+final class MainMovieCollectionCell: BaseCollectionViewCell {
     
     static var id : String {
         String(describing: self)
     }
     
-    var movieId : Int?
-    
-    var delegate : ReverseValueAssigning?
+    let viewModel = MainCollectionCellViewModel()
 
+    var delegate: ReverseValueAssigning?
+    
     let imageView: UIImageView = {
        let imageView = UIImageView()
         imageView.layer.masksToBounds = true
@@ -56,6 +56,11 @@ final class MainMovieCollectionCell: BaseCollectionViewCell, IncludingLike {
         label.font = .systemFont(ofSize: 14, weight: .regular)
         return label
     }()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setDataBindings()
+    }
     
     override func configureViewHierarchy() {
         [imageView, stackView, overviewLabel].forEach { contentView.addSubview($0) }
@@ -98,48 +103,42 @@ final class MainMovieCollectionCell: BaseCollectionViewCell, IncludingLike {
     }
     
     @objc func updateLikeStatus() {
-        guard let id = movieId else {
-            print("[not-proper assignment] id is not set properly")
-            return
-        }
-        
-        if let idLocation = ApplicationUserData.likedIdArray.firstIndex(of: id) {
-            ApplicationUserData.likedIdArray.remove(at: idLocation)
-        } else {
-            ApplicationUserData.likedIdArray.append(id)
-        }
-        
-        delegate?.upstreamAction(with: ApplicationUserData.likedIdArray.count)
-        
-        showLikeStatus(id: id)
-    }
-    
-    func fillUpData(movie: Movie) {
-        if let backdropPath = movie.backdropPath {
-            let imageUrl = Datasource.baseImageURL.rawValue + backdropPath
-            let url = URL(string: imageUrl)
-            imageView.kf.setImage(with: url ) { _ in
-                self.imageView.stopSkeletonAnimation()
-                self.imageView.hideSkeleton()
-                self.imageView.layer.cornerRadius = 10
-            }
-        }
-        
-        titleLable.text = movie.title
-        
-        movieId = movie.id
-        showLikeStatus(id: movie.id)
-        
-        overviewLabel.text = movie.overview
-    }
-    
-    func showLikeStatus(id: Int) {
-        let image = ApplicationUserData.likedIdArray.contains(id) ? AppSFSymbol.blackHeart.image : AppSFSymbol.whiteHeart.image
-        likeButton.setImage(image, for: .normal)
+        viewModel.input.likeUpdate.value = ()
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
         imageView.layer.cornerRadius = 10
+    }
+}
+
+//MARK: - Data Bindings
+extension MainMovieCollectionCell {
+    func setDataBindings() {
+        viewModel.output.movie.bind { [weak self]  movie in
+            
+            guard let movie else { return }
+            
+            if let backdropPath = movie.backdropPath {
+                let imageUrl = Datasource.baseImageURL.rawValue + backdropPath
+                let url = URL(string: imageUrl)
+                self?.imageView.kf.setImage(with: url ) { _ in
+                    self?.imageView.stopSkeletonAnimation()
+                    self?.imageView.hideSkeleton()
+                    self?.imageView.layer.cornerRadius = 10
+                }
+            }
+            
+            self?.titleLable.text = movie.title
+            self?.overviewLabel.text = movie.overview
+            
+            self?.viewModel.input.likeGet.value = ()
+        }
+        
+        viewModel.output.likeStatus.bind { [weak self]  isLiked in
+            let image = isLiked ? AppSFSymbol.blackHeart.image : AppSFSymbol.whiteHeart.image
+            self?.likeButton.setImage(image, for: .normal)
+            self?.delegate?.upstreamAction(with: isLiked)
+        }
     }
 }
