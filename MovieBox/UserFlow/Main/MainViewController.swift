@@ -12,22 +12,11 @@ import Alamofire
 
 final class MainViewController: BaseViewController {
     
-    var recentlyUsedKeyword = ApplicationUserData.recentlyUsedKeyword
+    let viewModel = MainViewModel()
     
+    //MARK: - View Components
     let mainCard = MainCardView()
     
-    lazy var todayMovieList: [Movie] = [] {
-        didSet {
-            collectionView.reloadData()
-            
-            if !todayMovieList.isEmpty {
-                collectionView.stopSkeletonAnimation()
-                collectionView.hideSkeleton(reloadDataAfter: true)
-            }
-        }
-    }
-    
-    //MARK: View Components
     let searchHeaderView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .horizontal
@@ -117,16 +106,10 @@ final class MainViewController: BaseViewController {
         let animation = SkeletonAnimationBuilder().makeSlidingAnimation(withDirection: .leftRight)
         collectionView.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: AppColor.subBackground.inUIColorFormat), animation: animation, transition: .crossDissolve(1))
         
-        NetworkManager.shared.callRequest( apiKind: .trending ) { (response : Result<TrendingResponse, AFError>) -> Void in
-            switch response {
-            case .success(let value):
-                let movieList = value.results
-                self.todayMovieList = movieList
-            case.failure(let error):
-                dump(error)
-            }
-            
-        }    }
+        setDataBindings()
+        
+        viewModel.input.movieGetRequest.value = ()
+    }
     
     override func setInitialValue() {
         navigationName = "Movie Box"
@@ -138,7 +121,6 @@ final class MainViewController: BaseViewController {
     }
     
     override func configureViewHierarchy() {
-        
         [mainCard, searchHeaderView, buttonScrollView,noresultLabel, secondTitleLabel, collectionView].forEach { view.addSubview($0) }
         [searchTitleLable,keywordDeleteButton ].forEach { searchHeaderView.addArrangedSubview($0) }
         buttonScrollView.addSubview(buttonContainer)
@@ -189,10 +171,7 @@ final class MainViewController: BaseViewController {
         
         collectionView.backgroundColor = AppColor.mainBackground.inUIColorFormat
         
-        
         keywordDeleteButton.addTarget(self, action: #selector(deleteSearchHistory), for: .touchUpInside)
-        
-        toggleNoResultLabelState()
         
         mainCard.isUserInteractionEnabled = true
         let tapOnProfileCard = UITapGestureRecognizer(target: self, action: #selector(showProfileSheet))
@@ -211,42 +190,12 @@ final class MainViewController: BaseViewController {
     }
     
     private func clearAndRefetchRecentSearch() {
-        buttonContainer.subviews.forEach {
-            $0.removeFromSuperview()
-        }
-        recentlyUsedKeyword = ApplicationUserData.recentlyUsedKeyword
-        
-        toggleNoResultLabelState()
-        
-        recentlyUsedKeyword.enumerated().forEach { index, value in
-            
-            let button = CancellableButton(
-                keyword: value,
-                buttonAction: {
-                    self.navigateToSearchPageWith(value)
-                },
-                cancelAction: {
-                    guard let index = ApplicationUserData.recentlyUsedKeyword.firstIndex(of: value) else {
-                        print("There is no \(value) in recent keyword")
-                        return
-                    }
-                    
-                    ApplicationUserData.recentlyUsedKeyword.remove(at: index)
-                    self.recentlyUsedKeyword = ApplicationUserData.recentlyUsedKeyword
-                    self.toggleNoResultLabelState()
-                }
-            )
-            buttonContainer.addArrangedSubview(button)
-        }
+        viewModel.updateSearchHistoryOutput()
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         mainCard.layer.cornerRadius = 10
-    }
-    
-    private func toggleNoResultLabelState(){
-        noresultLabel.isHidden =  recentlyUsedKeyword.count == 0 ? false : true
     }
 }
 
@@ -264,16 +213,18 @@ extension MainViewController: SkeletonCollectionViewDataSource {
     }
     
     func collectionSkeletonView(_ skeletonView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        todayMovieList.count
+        let todayMoviewList = viewModel.output.todayMovieList.value
+        return todayMoviewList.count
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        todayMovieList.count
+        let todayMoviewList = viewModel.output.todayMovieList.value
+        return todayMoviewList.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MainMovieCollectionCell.id, for: indexPath) as? MainMovieCollectionCell {
-            cell.fillUpData(movie: todayMovieList[indexPath.item])
+            cell.fillUpData(movie: viewModel.output.todayMovieList.value[indexPath.item])
             cell.delegate = self
             
             return cell
@@ -282,7 +233,7 @@ extension MainViewController: SkeletonCollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let movie = todayMovieList[indexPath.item]
+        let movie = viewModel.output.todayMovieList.value[indexPath.item]
         let destinationVC = DetailViewController()
         destinationVC.bringDetailData(data: movie)
         
@@ -301,7 +252,6 @@ extension MainViewController: ReverseValueAssigning {
         if let _ = with as? UIColor {
             view.backgroundColor = AppColor.mainBackground.inUIColorFormat
         }
-        
     }
 }
 
@@ -319,11 +269,7 @@ extension MainViewController {
     }
     
     @objc func deleteSearchHistory() {
-        recentlyUsedKeyword = []
-        ApplicationUserData.recentlyUsedKeyword = recentlyUsedKeyword
-        
-        buttonContainer.subviews.forEach { $0.removeFromSuperview() }
-        toggleNoResultLabelState()
+        viewModel.input.searchHistoryDeleteRequest.value = nil
     }
     
     @objc func showProfileSheet() {
@@ -338,5 +284,40 @@ extension MainViewController {
         }
         
         present(navigationController, animated: true)
+    }
+}
+
+//MARK: - Data Bindings
+extension MainViewController {
+    func setDataBindings() {
+        viewModel.output.todayMovieList.bind { [weak self] list in
+            self?.collectionView.reloadData()
+            
+            if !list.isEmpty {
+                self?.collectionView.stopSkeletonAnimation()
+                self?.collectionView.hideSkeleton(reloadDataAfter: true)
+            }
+        }
+        
+        viewModel.output.recentlyUsedKeyword.bind { [weak self] keywords in
+            self?.noresultLabel.isHidden =  keywords.count == 0 ? false : true
+            
+            self?.buttonContainer.subviews.forEach {
+                $0.removeFromSuperview()
+            }
+            
+            keywords.enumerated().forEach { index, value in
+                let button = CancellableButton(
+                    keyword: value,
+                    buttonAction: {
+                        self?.navigateToSearchPageWith(value)
+                    },
+                    cancelAction: {
+                        self?.viewModel.input.searchHistoryDeleteRequest.value = value
+                    }
+                )
+                self?.buttonContainer.addArrangedSubview(button)
+            }
+        }
     }
 }

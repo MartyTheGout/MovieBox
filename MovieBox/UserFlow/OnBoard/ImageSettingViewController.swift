@@ -112,12 +112,9 @@ extension ImageSettingViewController : UICollectionViewDataSource, UICollectionV
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ProfileImageViewCell.id, for: indexPath) as? ProfileImageViewCell {
             
-            print(indexPath, viewModel.output.selectionStatusArray.value[indexPath.item] )
-            
             cell.setCellImage(locationAt: indexPath.item)
             
             cell.viewModel.output.isChosenInput.value = viewModel.output.selectionStatusArray.value[indexPath.item]
-            print(cell.viewModel.output.isChosenInput.value)
             
             cell.contentView.isUserInteractionEnabled = false // This line of code can prevent button from coverting contentView's clickable area
             return cell
