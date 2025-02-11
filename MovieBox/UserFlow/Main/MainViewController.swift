@@ -263,7 +263,7 @@ extension MainViewController {
     
     func navigateToSearchPageWith(_ keyword: String) {
         let destinationVC = SearchViewController()
-        destinationVC.currentKeyword = keyword
+        destinationVC.viewModel.input.searchText.value = keyword
         navigationController?.pushViewController(destinationVC, animated: true)
     }
     
