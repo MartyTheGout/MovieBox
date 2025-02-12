@@ -171,7 +171,7 @@ extension SearchViewController : SkeletonTableViewDataSource {
             tableView.reloadRows(at: [indexPath], with: .none)
         }
         
-        destinationVC.bringDetailData(data: movie)
+        destinationVC.viewModel.input.movie.value = movie
         
         navigationController?.pushViewController(destinationVC, animated: true)
     }

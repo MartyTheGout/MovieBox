@@ -9,6 +9,8 @@ import Foundation
 import Alamofire
 
 class MainViewModel : BaseInOut {
+    
+    //MARK: - in-out pattern conformance ( Observable Properties )
     struct Input {
         let movieGetRequest: Observable<Void?> = Observable(nil)
         let searchHistoryDeleteRequest: Observable<String?> = Observable(nil)

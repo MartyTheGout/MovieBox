@@ -11,22 +11,12 @@ import Kingfisher
 import Alamofire
 
 final class DetailViewController: BaseScrollViewController {
-    var movieId: Int?
-    var movieName : String? {
-        didSet {
-            configureNavigationBar()
-        }
-    }
+    
+    let viewModel = DetailViewModel()
     
     lazy var likeButton: UIBarButtonItem = {
         return UIBarButtonItem(image: AppSFSymbol.whiteHeart.image, style: .plain, target: self, action: #selector(updateLikeStatus))
     }()
-    
-    var casts : [Cast] = [] {
-        didSet {
-            castCollection.reloadData()
-        }
-    }
     
     var upstreamValueChange : (()->Void)?
     
@@ -146,10 +136,8 @@ final class DetailViewController: BaseScrollViewController {
         castCollection.delegate = self
         castCollection.dataSource = self
         castCollection.register(CastCollectionViewCell.self, forCellWithReuseIdentifier: CastCollectionViewCell.id)
-    }
-    
-    override func setInitialValue() {
-        navigationName = movieName
+        
+        setDataBindings()
     }
     
     override func configureNavigationBar() {
@@ -235,8 +223,6 @@ final class DetailViewController: BaseScrollViewController {
     override func configureViewDetails() {
         view.backgroundColor = AppColor.mainBackground.inUIColorFormat
         
-        guard let movieId else { return }
-        showLikeStatus(id: movieId)
         synopsisButton.addTarget(self, action: #selector(toggleSynosisDisplayOption), for: .touchUpInside)
         castCollection.backgroundColor = AppColor.mainBackground.inUIColorFormat
     }
@@ -266,32 +252,16 @@ final class DetailViewController: BaseScrollViewController {
 }
 
 
-//MARK: IncludingLike Protocol
-extension DetailViewController: IncludingLike {
+//MARK: Like Feature
+extension DetailViewController {
     @objc func updateLikeStatus() {
-        guard let id = movieId else {
-            print("[not-proper assignment] id is not set properly")
-            return
-        }
-        
-        if let idLocation = ApplicationUserData.likedIdArray.firstIndex(of: id) {
-            ApplicationUserData.likedIdArray.remove(at: idLocation)
-        } else {
-            ApplicationUserData.likedIdArray.append(id)
-        }
+        viewModel.input.likeUpdate.value = ()
         upstreamValueChange?()
-        showLikeStatus(id: id)
-    }
-    
-    func showLikeStatus(id: Int) {
-        let image = ApplicationUserData.likedIdArray.contains(id) ? AppSFSymbol.blackHeart.image : AppSFSymbol.whiteHeart.image
-        navigationItem.rightBarButtonItem?.setImage(image, options: .init(.none))
     }
 }
 
 //MARK: ScrollDelegate Protocol
 extension DetailViewController: UIScrollViewDelegate {
-    
     /**
      This function is for chaning page-control corresponding to the movement of x coordinate in backdrop scroll view
      */
@@ -305,13 +275,15 @@ extension DetailViewController: UIScrollViewDelegate {
 //MARK: CollectionDelegate/DataSource Protocol
 extension DetailViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        casts.count
+        guard let casts = viewModel.output.castInfo.value else { return 0 }
+        return casts.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CastCollectionViewCell.id, for: indexPath) as? CastCollectionViewCell {
-            cell.fillUpData(with: casts[indexPath.item])
-            
+            guard let casts = viewModel.output.castInfo.value else { return UICollectionViewCell() }
+            cell.viewModel.output.cast.value = casts[indexPath.item]
+
             return cell
         }
         
@@ -321,148 +293,6 @@ extension DetailViewController: UICollectionViewDelegate, UICollectionViewDataSo
 
 //MARK: Actions
 extension DetailViewController {
-    /**
-     This function **dynamically** bring datasource for views, including 5 backdrop images, inifite poster images, details about movie.
-     
-     The point of this function is that, since the composition of this view is mainly affected by scrollview, which has no automatic data-reload functionality,  **not only the data, but also the layout, hierarchy of the view,  should be modified**
-     
-     So the overflow of this function is as below.
-     data update with given one > data fetching > (if required) Add up the view in the view heirarchy  > (if required) Add up layout constraints
-     */
-    func bringDetailData(data: Movie) {
-        self.movieId = data.id
-        self.movieName = data.title
-        
-        let genreIDs: String = (data.genreIDS?.prefix(2).reduce("", { result, element in
-            guard let genre = Genre(rawValue: element) else {return result}
-            
-            if result != "" {
-                return result + ", " + genre.koreanName
-            }
-            
-            return result + genre.koreanName
-        }))!
-        
-        let infoStack: [String] = [data.releaseDate ?? "", "\(data.voteAverage ?? 0.0)", genreIDs]
-        configureMovieInfoStack()
-        
-        movieInfoStack.subviews.enumerated().forEach { (index, label)  in
-            guard let label = label as? UILabel else {
-                print("there is no label in movieInfoStack")
-                return }
-            
-            if index % 2 == 0 {
-                let previousAttributeString = label.attributedText?.copy() as? NSAttributedString
-                
-                let mutableString = NSMutableAttributedString(string: "")
-                mutableString.append(previousAttributeString!)
-                mutableString.append(NSAttributedString(string: infoStack[index/2],
-                                                        attributes: [
-                                                            .foregroundColor : AppColor.subBackground.inUIColorFormat,
-                                                            .font : UIFont.systemFont(ofSize: 15)
-                                                        ]))
-                
-                label.attributedText = mutableString
-            }
-        }
-        
-        synopsisContentLabel.text = data.overview
-        
-        NetworkManager.shared.callRequest(apiKind: .image(movieId: data.id)) { (imageResponse: Result<ImageResponse, AFError>) -> Void in
-            
-            switch imageResponse {
-            case .success(let value):
-                let backdrops = value.backdrops.prefix(5)
-                let posters = value.posters
-                
-                if backdrops.isEmpty {
-                    let imageView = UIImageView()
-                    imageView.image = UIImage(systemName: "film")
-                    imageView.clipsToBounds = true
-                    imageView.contentMode = .scaleAspectFit
-                    imageView.tintColor = AppColor.subBackground.inUIColorFormat
-                    
-                    self.backDropContentView.addSubview(imageView)
-                    
-                } else {
-                    backdrops.forEach {
-                        let imageURL = Datasource.baseImageURL.rawValue + $0.filePath
-                        let imageView = UIImageView()
-                        imageView.kf.setImage(with: URL(string: imageURL)!)
-                        imageView.clipsToBounds = true
-                        imageView.contentMode = .scaleAspectFill
-                        
-                        self.backDropContentView.addSubview(imageView)
-                    }
-                }
-                
-                // initially number is set to 5, but in case of less than 5 => need to set to precise value
-                self.pageControl.numberOfPages = self.backDropContentView.subviews.count
-                
-                var horizontalCoordinateBase: ConstraintRelatableTarget = self.backDropContentView
-                self.backDropContentView.subviews.forEach { subView in
-                    subView.snp.makeConstraints {
-                        $0.top.equalTo(self.backDropContentView)
-                        $0.leading.equalTo(horizontalCoordinateBase)
-                        $0.width.equalTo(UIScreen.main.bounds.width)
-                        $0.height.equalTo(UIScreen.main.bounds.width * (2/3))
-                    }
-                    
-                    horizontalCoordinateBase = subView.snp.trailing
-                }
-                
-                // make backDropContentView have same trailing with the last sub image.
-                self.backDropContentView.snp.makeConstraints {
-                    $0.trailing.equalTo(horizontalCoordinateBase)
-                }
-                
-                if posters.isEmpty {
-                    let imageView = UIImageView()
-                    imageView.image = UIImage(systemName: "film")
-                    imageView.clipsToBounds = true
-                    imageView.contentMode = .scaleAspectFit
-                    imageView.tintColor = AppColor.subBackground.inUIColorFormat
-                    
-                    self.posterContentView.addArrangedSubview(imageView)
-                    
-                } else {
-                    posters.forEach {
-                        let imageURL = Datasource.baseImageURL.rawValue + $0.filePath
-                        let imageView = UIImageView()
-                        imageView.kf.setImage(with: URL(string: imageURL)!)
-                        imageView.clipsToBounds = true
-                        imageView.contentMode = .scaleToFill
-                        
-                        self.posterContentView.addArrangedSubview(imageView)
-                    }
-                }
-                
-                self.posterContentView.subviews.forEach { subView in
-                    subView.snp.makeConstraints {
-                        $0.width.equalTo(self.posterWidth)
-                        $0.height.equalTo(self.posterHeight)
-                    }
-                }
-                
-            case.failure(let error):
-                dump(error)
-            }
-        }
-        
-        NetworkManager.shared.callRequest(apiKind: .credit(movieId: data.id)) { (response: Result<CreditResponse, AFError> )-> Void in
-            switch response {
-            case .success(let value) :
-                if value.cast.isEmpty {
-                    let emptyCastRepresentative = Cast(name: "No Data", character: "-", profilePath: "")
-                    self.casts = [emptyCastRepresentative]
-                } else {
-                    self.casts = value.cast
-                }
-            case .failure(let error) :
-                dump(error)
-            }
-        }
-    }
     
     @objc func toggleSynosisDisplayOption(_ sender: UIButton) {
         
@@ -479,6 +309,132 @@ extension DetailViewController {
             
             let attributedTitle = NSAttributedString(string: "More", attributes: [.foregroundColor : AppColor.tintBlue.inUIColorFormat])
             synopsisButton.setAttributedTitle(attributedTitle, for: .normal)
+        }
+    }
+}
+
+//MARK: - Data Bindings
+extension DetailViewController {
+    
+    func setDataBindings() {
+        viewModel.output.movieName.bind { [weak self] name in
+            self?.navigationName = name
+            self?.configureNavigationBar()
+            
+            self?.viewModel.input.likeGet.value = ()
+        }
+        
+        viewModel.output.overview.bind { [weak self] overview in
+            self?.synopsisContentLabel.text = overview
+        }
+        
+        viewModel.output.infoStack.bind { [weak self] infoStack in
+            self?.configureMovieInfoStack()
+            
+            self?.movieInfoStack.subviews.enumerated().forEach { (index, label)  in
+                guard let label = label as? UILabel else {
+                    print("there is no label in movieInfoStack")
+                    return }
+                
+                if index % 2 == 0 {
+                    let previousAttributeString = label.attributedText?.copy() as? NSAttributedString
+                    
+                    let mutableString = NSMutableAttributedString(string: "")
+                    mutableString.append(previousAttributeString!)
+                    mutableString.append(NSAttributedString(string: infoStack[index/2],
+                                                            attributes: [
+                                                                .foregroundColor : AppColor.subBackground.inUIColorFormat,
+                                                                .font : UIFont.systemFont(ofSize: 15)
+                                                            ]))
+                    
+                    label.attributedText = mutableString
+                }
+            }
+        }
+        
+        viewModel.output.backdropImageUrls.lazybind { [weak self] backdrops in
+            if backdrops.isEmpty {
+                let imageView = UIImageView()
+                imageView.image = UIImage(systemName: "film")
+                imageView.clipsToBounds = true
+                imageView.contentMode = .scaleAspectFit
+                imageView.tintColor = AppColor.subBackground.inUIColorFormat
+                
+                self?.backDropContentView.addSubview(imageView)
+                
+            } else { // 여기부터 
+                backdrops.forEach {
+                    let imageURL = Datasource.baseImageURL.rawValue + $0
+                    let imageView = UIImageView()
+                    imageView.kf.setImage(with: URL(string: imageURL)!)
+                    imageView.clipsToBounds = true
+                    imageView.contentMode = .scaleAspectFill
+                    
+                    self?.backDropContentView.addSubview(imageView)
+                }
+            }
+            
+            // initially number is set to 5, but in case of less than 5 => need to set to precise value
+            self?.pageControl.numberOfPages = self?.backDropContentView.subviews.count ?? 0
+            
+            guard let backDropContentView = self?.backDropContentView else { return }
+            var horizontalCoordinateBase: ConstraintRelatableTarget = backDropContentView
+            
+            self?.backDropContentView.subviews.forEach { subView in
+                subView.snp.makeConstraints {
+                    $0.top.equalTo(backDropContentView)
+                    $0.leading.equalTo(horizontalCoordinateBase)
+                    $0.width.equalTo(UIScreen.main.bounds.width)
+                    $0.height.equalTo(UIScreen.main.bounds.width * (2/3))
+                }
+                
+                horizontalCoordinateBase = subView.snp.trailing
+            }
+            
+            // make backDropContentView have same trailing with the last sub image.
+            self?.backDropContentView.snp.makeConstraints {
+                $0.trailing.equalTo(horizontalCoordinateBase)
+            }
+        }
+        
+        viewModel.output.posterImageUrls.lazybind { [weak self] posters in
+            if posters.isEmpty {
+                let imageView = UIImageView()
+                imageView.image = UIImage(systemName: "film")
+                imageView.clipsToBounds = true
+                imageView.contentMode = .scaleAspectFit
+                imageView.tintColor = AppColor.subBackground.inUIColorFormat
+                
+                self?.posterContentView.addArrangedSubview(imageView)
+                
+            } else {
+                posters.forEach {
+                    let imageURL = Datasource.baseImageURL.rawValue + $0
+                    let imageView = UIImageView()
+                    imageView.kf.setImage(with: URL(string: imageURL)!)
+                    imageView.clipsToBounds = true
+                    imageView.contentMode = .scaleToFill
+                    
+                    self?.posterContentView.addArrangedSubview(imageView)
+                }
+            }
+            
+            self?.posterContentView.subviews.forEach { subView in
+                subView.snp.makeConstraints {
+                    $0.width.equalTo(self?.posterWidth ?? 0)
+                    $0.height.equalTo(self?.posterHeight ?? 0)
+                }
+            }
+        }
+        
+        viewModel.output.castInfo.bind { [weak self] castInfo in
+            self?.castCollection.reloadData()
+        }
+        
+        viewModel.output.likeStatus.bind { [weak self]  isLiked in
+            let image = isLiked ? AppSFSymbol.blackHeart.image : AppSFSymbol.whiteHeart.image
+            
+            self?.navigationItem.rightBarButtonItem?.setImage(image, options: .init(.none))
         }
     }
 }

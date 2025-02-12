@@ -234,7 +234,7 @@ extension MainViewController: SkeletonCollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let movie = viewModel.output.todayMovieList.value[indexPath.item]
         let destinationVC = DetailViewController()
-        destinationVC.bringDetailData(data: movie)
+        destinationVC.viewModel.input.movie.value = movie
         
         navigationController?.pushViewController(destinationVC, animated: true)
     }
