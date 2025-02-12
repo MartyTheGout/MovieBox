@@ -17,6 +17,7 @@ final class MainMovieCollectionCell: BaseCollectionViewCell {
     }
     
     let viewModel = MainCollectionCellViewModel()
+    let likeButtonViewModel = LikeButtonViewModel()
 
     var delegate: ReverseValueAssigning?
     
@@ -103,7 +104,7 @@ final class MainMovieCollectionCell: BaseCollectionViewCell {
     }
     
     @objc func updateLikeStatus() {
-        viewModel.input.likeUpdate.value = ()
+        likeButtonViewModel.input.likeUpdate.value = ()
     }
     
     override func layoutSubviews() {
@@ -116,7 +117,6 @@ final class MainMovieCollectionCell: BaseCollectionViewCell {
 extension MainMovieCollectionCell {
     func setDataBindings() {
         viewModel.output.movie.bind { [weak self]  movie in
-            
             guard let movie else { return }
             
             if let backdropPath = movie.backdropPath {
@@ -131,11 +131,9 @@ extension MainMovieCollectionCell {
             
             self?.titleLable.text = movie.title
             self?.overviewLabel.text = movie.overview
-            
-            self?.viewModel.input.likeGet.value = ()
         }
         
-        viewModel.output.likeStatus.bind { [weak self]  isLiked in
+        likeButtonViewModel.output.likeStatus.bind { [weak self]  isLiked in
             let image = isLiked ? AppSFSymbol.blackHeart.image : AppSFSymbol.whiteHeart.image
             self?.likeButton.setImage(image, for: .normal)
             self?.delegate?.upstreamAction(with: isLiked)

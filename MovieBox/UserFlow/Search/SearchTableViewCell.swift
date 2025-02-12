@@ -15,6 +15,7 @@ final class SearchTableViewCell: BaseTableViewCell {
     static var id : String { String (describing: self) }
     
     let viewModel = SearchTableCellModel()
+    let likeButtonViewModel = LikeButtonViewModel()
     
     //MARK: View Components
     let mainImage : UIImageView = {
@@ -123,7 +124,7 @@ final class SearchTableViewCell: BaseTableViewCell {
 //MARK: IncludingLike Protocol
 extension SearchTableViewCell {
     @objc func updateLikeStatus() {
-        viewModel.input.likeUpdate.value = ()
+        likeButtonViewModel.input.likeUpdate.value = ()
     }
 }
 
@@ -225,7 +226,7 @@ extension SearchTableViewCell {
             }
         }
         
-        viewModel.output.likeStatus.bind { [weak self] likeStatus in
+        likeButtonViewModel.output.likeStatus.bind { [weak self] likeStatus in
             let image = likeStatus ? AppSFSymbol.blackHeart.image : AppSFSymbol.whiteHeart.image
             self?.likeButton.setImage(image, for: .normal)
         }

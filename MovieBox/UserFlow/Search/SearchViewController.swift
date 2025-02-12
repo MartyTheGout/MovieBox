@@ -149,6 +149,8 @@ extension SearchViewController : SkeletonTableViewDataSource {
             
             cell.viewModel.input.searchKeyword.value = viewModel.input.searchText.value
             cell.viewModel.input.movie.value = movieData[indexPath.row]
+            cell.likeButtonViewModel.input.movieId.value = movieData[indexPath.row].id
+            
             return cell
         }
         return UITableViewCell()
@@ -172,6 +174,7 @@ extension SearchViewController : SkeletonTableViewDataSource {
         }
         
         destinationVC.viewModel.input.movie.value = movie
+        destinationVC.likeButtonViewModel.input.movieId.value = movie.id
         
         navigationController?.pushViewController(destinationVC, animated: true)
     }
@@ -225,10 +228,8 @@ extension SearchViewController {
                         self?.searchBar.text = self?.viewModel.input.searchText.value
                     }
                 }
-                
                 self?.tableView.reloadData()
             }
-            
             self?.handleSearchResultOnView()
         }
     }

@@ -13,6 +13,7 @@ import Alamofire
 final class DetailViewController: BaseScrollViewController {
     
     let viewModel = DetailViewModel()
+    let likeButtonViewModel = LikeButtonViewModel()
     
     lazy var likeButton: UIBarButtonItem = {
         return UIBarButtonItem(image: AppSFSymbol.whiteHeart.image, style: .plain, target: self, action: #selector(updateLikeStatus))
@@ -255,7 +256,7 @@ final class DetailViewController: BaseScrollViewController {
 //MARK: Like Feature
 extension DetailViewController {
     @objc func updateLikeStatus() {
-        viewModel.input.likeUpdate.value = ()
+        likeButtonViewModel.input.likeUpdate.value = ()
         upstreamValueChange?()
     }
 }
@@ -320,8 +321,6 @@ extension DetailViewController {
         viewModel.output.movieName.bind { [weak self] name in
             self?.navigationName = name
             self?.configureNavigationBar()
-            
-            self?.viewModel.input.likeGet.value = ()
         }
         
         viewModel.output.overview.bind { [weak self] overview in
@@ -431,9 +430,8 @@ extension DetailViewController {
             self?.castCollection.reloadData()
         }
         
-        viewModel.output.likeStatus.bind { [weak self]  isLiked in
+        likeButtonViewModel.output.likeStatus.bind { [weak self]  isLiked in
             let image = isLiked ? AppSFSymbol.blackHeart.image : AppSFSymbol.whiteHeart.image
-            
             self?.navigationItem.rightBarButtonItem?.setImage(image, options: .init(.none))
         }
     }

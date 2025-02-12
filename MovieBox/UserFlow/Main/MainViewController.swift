@@ -225,7 +225,11 @@ extension MainViewController: SkeletonCollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MainMovieCollectionCell.id, for: indexPath) as? MainMovieCollectionCell {
             cell.delegate = self
-            cell.viewModel.output.movie.value = viewModel.output.todayMovieList.value[indexPath.item]
+            
+            let movie = viewModel.output.todayMovieList.value[indexPath.item]
+            
+            cell.viewModel.output.movie.value = movie
+            cell.likeButtonViewModel.input.movieId.value = movie.id
             return cell
         }
         return UICollectionViewCell()

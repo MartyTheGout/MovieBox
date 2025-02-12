@@ -12,12 +12,9 @@ class DetailViewModel: BaseInOut {
     //MARK: - in-out pattern conformance ( Observable Properties )8
     struct Input {
         let movie : Observable<Movie?> = Observable(nil)
-        let likeGet : Observable<Void?> = Observable(nil)
-        let likeUpdate : Observable<Void?> = Observable(nil)
     }
     
     struct Output {
-        let likeStatus = Observable(false)
         let movieName: Observable<String?> = Observable(nil)
         let infoStack: Observable<[String]> = Observable([])
         let overview: Observable<String?> = Observable(nil)
@@ -49,37 +46,11 @@ class DetailViewModel: BaseInOut {
             self?.getImageInfo(with: movie.id)
             self?.getCastInfo(with: movie.id)
         }
-        
-        input.likeGet.bind { [weak self] _ in
-            self?.getLikeStatus()
-        }
-        
-        input.likeUpdate.bind { [weak self] _ in
-            self?.updateLikeStatus()
-            self?.getLikeStatus()
-        }
     }
 }
 
 //MARK: - Actions
 extension DetailViewModel {
-    func getLikeStatus() {
-        guard let id = input.movie.value?.id else { return }
-        
-        let currentLikeStatus = ApplicationUserData.likedIdArray.contains(where: { $0 == id })
-        output.likeStatus.value = currentLikeStatus
-        
-    }
-    
-    func updateLikeStatus() {
-        guard let id = input.movie.value?.id else { return }
-        
-        if let idLocation = ApplicationUserData.likedIdArray.firstIndex(of: id) {
-            ApplicationUserData.likedIdArray.remove(at: idLocation)
-        } else {
-            ApplicationUserData.likedIdArray.append(id)
-        }
-    }
     
     func setInfoStack(with movie: Movie) {
         let genreIDs: String = (movie.genreIDS?.prefix(2).reduce("", { result, element in
