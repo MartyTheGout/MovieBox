@@ -239,6 +239,7 @@ extension MainViewController: SkeletonCollectionViewDataSource {
         let movie = viewModel.output.todayMovieList.value[indexPath.item]
         let destinationVC = DetailViewController()
         destinationVC.viewModel.input.movie.value = movie
+        destinationVC.likeButtonViewModel.input.movieId.value = movie.id
         
         navigationController?.pushViewController(destinationVC, animated: true)
     }
