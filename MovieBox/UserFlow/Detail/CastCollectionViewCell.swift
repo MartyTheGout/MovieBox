@@ -11,10 +11,13 @@ import Kingfisher
 
 class CastCollectionViewCell: BaseCollectionViewCell {
     
+    let viewModel = CastCollectionCellModel()
+    
     static var id: String {
         String(describing: self)
     }
     
+    //MARK: - View Components
     let imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
@@ -35,6 +38,12 @@ class CastCollectionViewCell: BaseCollectionViewCell {
         label.textColor = AppColor.subBackground.inUIColorFormat
         return label
     }()
+    
+    //MARK: - View Life Cycle
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setDataBindings()
+    }
     
     override func configureViewHierarchy() {
         [imageView, realNameLabel, charactorNameLabel].forEach {
@@ -67,27 +76,6 @@ class CastCollectionViewCell: BaseCollectionViewCell {
         imageView.clipsToBounds = true
     }
     
-    func fillUpData(with cast : Cast) {
-        
-        if cast.character == "-" {
-            imageView.image = UIImage(systemName: "person.circle")
-            imageView.contentMode = .scaleAspectFit
-            imageView.tintColor = AppColor.subBackground.inUIColorFormat
-        } else {
-            if let profilePath = cast.profilePath {
-                let imageURL = URL(string: Datasource.baseImageURL.rawValue + (profilePath))
-                imageView.kf.setImage(with: imageURL)
-            } else {
-                imageView.image = UIImage(systemName: "person.circle")
-                imageView.contentMode = .scaleAspectFit
-                imageView.tintColor = AppColor.subBackground.inUIColorFormat
-            }
-        }
-        
-        realNameLabel.text = cast.name
-        charactorNameLabel.text = cast.character
-    }
-
     /**
      Background of this function: All of the trials below were failed, Therefore It was required to put logic to modify cornerRadius on the last step, in drawing cycle
     Since the imageView's size was set in the phase of viewDidLoad,
@@ -102,5 +90,32 @@ class CastCollectionViewCell: BaseCollectionViewCell {
         super.draw(rect)
         imageView.layer.cornerRadius = imageView.frame.height / 2
     }
+}
 
+//MARK: - Data Bindings
+extension CastCollectionViewCell {
+    func setDataBindings() {
+        viewModel.output.cast.bind { [weak self] cast in
+            
+            guard let cast else { return }
+            
+            if cast.character == "-" {
+                self?.imageView.image = UIImage(systemName: "person.circle")
+                self?.imageView.contentMode = .scaleAspectFit
+                self?.imageView.tintColor = AppColor.subBackground.inUIColorFormat
+            } else {
+                if let profilePath = cast.profilePath {
+                    let imageURL = URL(string: Datasource.baseImageURL.rawValue + (profilePath))
+                    self?.imageView.kf.setImage(with: imageURL)
+                } else {
+                    self?.imageView.image = UIImage(systemName: "person.circle")
+                    self?.imageView.contentMode = .scaleAspectFit
+                    self?.imageView.tintColor = AppColor.subBackground.inUIColorFormat
+                }
+            }
+            
+            self?.realNameLabel.text = cast.name
+            self?.charactorNameLabel.text = cast.character
+        }
+    }
 }
