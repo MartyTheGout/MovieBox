@@ -11,7 +11,7 @@ import Alamofire
 
 final class SearchViewController: BaseViewController {
     let viewModel = SearchViewModel()
-   
+    
     //MARK: View Components
     let searchBar : UISearchBar = {
         let searchBar = UISearchBar()
@@ -209,28 +209,38 @@ extension SearchViewController : UISearchBarDelegate {
 //MARK: - Data Bindings
 extension SearchViewController {
     func setDataBindings() {
+        
+        /* Flow should be
+         1) check whether search result is nil or not
+         2) if it is not nil => stop skeleton
+         3) tableView.reloadData
+         4) handle noResultView's hidden status
+         5) scrollLocation for new keyword - search
+         6) searchBar's text checking ( since the flow can start from viewModel's input, not just textField-input
+         */
         viewModel.output.movieData.lazybind { [weak self] oldData, newData in
-            
             guard let newData else { return }
             
-            if !newData.isEmpty {
-                self?.tableView.stopSkeletonAnimation()
-                self?.tableView.hideSkeleton()
-                
-                if newData.count <= 20 {
-                    if self?.tableView.numberOfSections ?? 0 > 0 {
-                        DispatchQueue.main.async {
-                            self?.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true) // WHY? 이전 코드에서는 비동기 처리할 필요가 없었다.
-                        }
-                    }
-                    
-                    if self?.searchBar.text == "" {
-                        self?.searchBar.text = self?.viewModel.input.searchText.value
-                    }
-                }
-                self?.tableView.reloadData()
+            self?.tableView.stopSkeletonAnimation()
+            self?.tableView.hideSkeleton()
+            
+            self?.tableView.reloadData()
+            
+            guard !newData.isEmpty else {
+                self?.noResultView.isHidden = false
+                return
             }
-            self?.handleSearchResultOnView()
+            
+            self?.noResultView.isHidden = true
+            if newData.count <= 20 {
+                if self?.tableView.numberOfSections ?? 0 > 0 {
+                    self?.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+                }
+                
+                if self?.searchBar.text == "" {
+                    self?.searchBar.text = self?.viewModel.input.searchText.value
+                }
+            }
         }
     }
 }
