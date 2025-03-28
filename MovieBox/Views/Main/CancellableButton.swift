@@ -27,7 +27,8 @@ class CancellableButton: BaseView {
         let attributedText = NSAttributedString(
             string: keyword,
             attributes: [
-                .font: UIFont.systemFont(ofSize: 16, weight: .medium)
+                .font: UIFont.systemFont(ofSize: 16, weight: .medium),
+                .foregroundColor : AppColor.mainBackground.inUIColorFormat
             ]
         )
         
@@ -40,7 +41,7 @@ class CancellableButton: BaseView {
     let deleteButton : UIButton = {
        let button = UIButton()
         button.setImage(AppSFSymbol.x.image, for: .normal)
-        button.tintColor = .black
+        button.tintColor = AppColor.mainBackground.inUIColorFormat
         button.backgroundColor = AppColor.subInfoDeliver.inUIColorFormat
         return button
     }()

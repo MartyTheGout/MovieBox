@@ -14,7 +14,7 @@ class ColorFilledButton: UIButton {
         didSet {
             super.isEnabled = isEnabled
             
-            self.backgroundColor = isEnabled ? AppColor.tintBlue.inUIColorFormat : AppColor.subBackground.inUIColorFormat
+            self.backgroundColor = isEnabled ? AppColor.tintBrown.inUIColorFormat : AppColor.subBackground.inUIColorFormat
         }
     }
     

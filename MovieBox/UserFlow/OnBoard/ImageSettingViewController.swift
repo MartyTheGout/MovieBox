@@ -96,7 +96,7 @@ final class ImageSettingViewController : BaseViewController {
     
     override func configureViewDetails() {
         
-        let backgroundColor = AppColor.mainInfoDeliver.inUIColorFormat
+        let backgroundColor = AppColor.mainBackground.inUIColorFormat
         
         view.backgroundColor = backgroundColor
         collectionView.backgroundColor = backgroundColor

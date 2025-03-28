@@ -16,7 +16,7 @@ final class DetailViewController: BaseScrollViewController {
     let likeButtonViewModel = LikeButtonViewModel()
     
     lazy var likeButton: UIBarButtonItem = {
-        return UIBarButtonItem(image: AppSFSymbol.whiteHeart.image, style: .plain, target: self, action: #selector(updateLikeStatus))
+        return UIBarButtonItem(image: AppSFSymbol.whiteHeart.image.withTintColor(AppColor.woodenConcept2.inUIColorFormat, renderingMode: .alwaysOriginal), style: .plain, target: self, action: #selector(updateLikeStatus))
     }()
     
     var upstreamValueChange : (()->Void)?
@@ -69,7 +69,10 @@ final class DetailViewController: BaseScrollViewController {
     
     let synopsisButton: UIButton = {
         let button = UIButton ()
-        let attributedTitle = NSAttributedString(string: "More", attributes: [.foregroundColor : AppColor.tintBlue.inUIColorFormat])
+        let attributedTitle = NSAttributedString(string: "More", attributes: [
+            .foregroundColor : AppColor.tintBrown.inUIColorFormat,
+            .font : UIFont.systemFont(ofSize: 15)
+        ])
         button.setAttributedTitle(attributedTitle, for: .normal)
         return button
     }()
@@ -234,7 +237,7 @@ final class DetailViewController: BaseScrollViewController {
         imagesInOrder.enumerated().forEach { index, image in
             let contentLabel = UILabel()
             
-            let imageAttachment = NSTextAttachment(image: image.withTintColor(AppColor.subBackground.inUIColorFormat))
+            let imageAttachment = NSTextAttachment(image: image.withTintColor(AppColor.subInfoDeliver.inUIColorFormat))
             let mutableString = NSMutableAttributedString(string: "")
             mutableString.append(NSAttributedString(attachment: imageAttachment))
             mutableString.append(NSAttributedString(string: " "))
@@ -245,7 +248,7 @@ final class DetailViewController: BaseScrollViewController {
             
             if index != imagesInOrder.count - 1 {
                 let barLabel = UILabel()
-                barLabel.attributedText = NSAttributedString(string: "|", attributes: [.foregroundColor : AppColor.subBackground.inUIColorFormat])
+                barLabel.attributedText = NSAttributedString(string: "|", attributes: [.foregroundColor : AppColor.subInfoDeliver.inUIColorFormat])
                 movieInfoStack.addArrangedSubview(barLabel)
             }
         }
@@ -302,13 +305,13 @@ extension DetailViewController {
         if text.lowercased() == "more" {
             synopsisContentLabel.numberOfLines = 0
             
-            let attributedTitle = NSAttributedString(string: "Hide", attributes: [.foregroundColor : AppColor.tintBlue.inUIColorFormat])
+            let attributedTitle = NSAttributedString(string: "Hide", attributes: [.foregroundColor : AppColor.tintBrown.inUIColorFormat])
             synopsisButton.setAttributedTitle(attributedTitle, for: .normal)
             
         } else {
             synopsisContentLabel.numberOfLines = 3
             
-            let attributedTitle = NSAttributedString(string: "More", attributes: [.foregroundColor : AppColor.tintBlue.inUIColorFormat])
+            let attributedTitle = NSAttributedString(string: "More", attributes: [.foregroundColor : AppColor.tintBrown.inUIColorFormat])
             synopsisButton.setAttributedTitle(attributedTitle, for: .normal)
         }
     }
@@ -342,7 +345,7 @@ extension DetailViewController {
                     mutableString.append(previousAttributeString!)
                     mutableString.append(NSAttributedString(string: infoStack[index/2],
                                                             attributes: [
-                                                                .foregroundColor : AppColor.subBackground.inUIColorFormat,
+                                                                .foregroundColor : AppColor.subInfoDeliver.inUIColorFormat,
                                                                 .font : UIFont.systemFont(ofSize: 15)
                                                             ]))
                     
@@ -357,7 +360,7 @@ extension DetailViewController {
                 imageView.image = UIImage(systemName: "film")
                 imageView.clipsToBounds = true
                 imageView.contentMode = .scaleAspectFit
-                imageView.tintColor = AppColor.subBackground.inUIColorFormat
+                imageView.tintColor = AppColor.subInfoDeliver.inUIColorFormat
                 
                 self?.backDropContentView.addSubview(imageView)
                 
@@ -432,7 +435,7 @@ extension DetailViewController {
         
         likeButtonViewModel.output.likeStatus.bind { [weak self]  isLiked in
             let image = isLiked ? AppSFSymbol.blackHeart.image : AppSFSymbol.whiteHeart.image
-            self?.navigationItem.rightBarButtonItem?.setImage(image, options: .init(.none))
+            self?.navigationItem.rightBarButtonItem?.setImage(image.withTintColor(AppColor.woodenConcept2.inUIColorFormat, renderingMode: .alwaysOriginal), options: .init(.none))
         }
     }
 }

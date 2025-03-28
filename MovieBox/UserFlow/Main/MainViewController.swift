@@ -38,7 +38,7 @@ final class MainViewController: BaseViewController {
         let attributedString = NSAttributedString(
             string: "전체 삭제",
             attributes: [
-                .foregroundColor : AppColor.tintBlue.inUIColorFormat,
+                .foregroundColor : AppColor.tintBrown.inUIColorFormat,
                 .font : UIFont.systemFont(ofSize: 15, weight: .bold)
             ]
         )
@@ -89,6 +89,7 @@ final class MainViewController: BaseViewController {
         let itemHeight : CGFloat = itemWidth * 1.7
         
         flowLayout.itemSize = CGSize(width: itemWidth, height: itemHeight)
+        flowLayout.sectionInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
         
         return UICollectionView(frame: .zero, collectionViewLayout: flowLayout)
     }()
@@ -112,12 +113,11 @@ final class MainViewController: BaseViewController {
     }
     
     override func setInitialValue() {
-        navigationName = "Movie Box"
+        navigationName = "무비서랍"
     }
     
     override func configureNavigationBar() {
         super.configureNavigationBar()
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: AppSFSymbol.magnifyingglass.image, style: .plain, target: self, action: #selector(navigateToSearchPage))
     }
     
     override func configureViewHierarchy() {
@@ -139,7 +139,7 @@ final class MainViewController: BaseViewController {
         
         buttonScrollView.snp.makeConstraints{
             $0.top.equalTo(searchHeaderView.snp.bottom).offset(10)
-            $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
+            $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide).offset(10)
             $0.height.equalTo(35) // statically set, not to have dynamic layout displacement in under-layouts
         }
         
@@ -200,6 +200,7 @@ final class MainViewController: BaseViewController {
 }
 
 //MARK: Collection + SkeletionCollectionView Protocol
+
 extension MainViewController: SkeletonCollectionViewDelegate {}
 
 extension MainViewController: SkeletonCollectionViewDataSource {
@@ -261,10 +262,6 @@ extension MainViewController: ReverseValueAssigning {
 
 //MARK: Actions
 extension MainViewController {
-    @objc func navigateToSearchPage() {
-        let destinationVC = SearchViewController()
-        navigationController?.pushViewController(destinationVC, animated: true)
-    }
     
     func navigateToSearchPageWith(_ keyword: String) {
         let destinationVC = SearchViewController()

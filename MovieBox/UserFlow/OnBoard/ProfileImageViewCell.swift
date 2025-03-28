@@ -19,7 +19,7 @@ final class ProfileImageViewCell: BaseCollectionViewCell {
     //MARK: - View Components
     lazy var button: UIButton = {
         let button = UIButton()
-        getBlueBoldBorder(view: button)
+        getBrownBoldBorder(view: button)
         button.layer.masksToBounds = true
         return button
     }()
@@ -60,7 +60,8 @@ extension ProfileImageViewCell {
         viewModel.output.isChosenInput.bind { [weak self] value in
             guard let button = self?.button else { return }
             if value {
-                getBlueBoldBorder(view: button)
+                button.layer.borderWidth = 3
+                button.layer.borderColor = AppColor.woodenConcept2.inUIColorFormat.cgColor
                 button.alpha = 1
             } else {
                 button.layer.borderWidth = AppLineDesign.unselected.rawValue

@@ -91,7 +91,7 @@ extension MBTIPartView {
     
     func markSelected(button : UIButton) {
         button.layer.borderWidth = 0
-        button.backgroundColor = AppColor.tintBlue.inUIColorFormat
+        button.backgroundColor = AppColor.tintBrown.inUIColorFormat
         button.setTitleColor(.white, for: .normal)
     }
     

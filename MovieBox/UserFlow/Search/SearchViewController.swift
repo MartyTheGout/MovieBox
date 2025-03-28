@@ -100,7 +100,7 @@ final class SearchViewController: BaseViewController {
     
     override func configureViewDetails() {
         view.backgroundColor = AppColor.mainBackground.inUIColorFormat
-        tableView.separatorStyle = .none
+        tableView.separatorStyle = .singleLine
         
         tableView.isSkeletonable = true
         

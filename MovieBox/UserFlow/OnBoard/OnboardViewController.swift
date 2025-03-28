@@ -14,7 +14,7 @@ final class OnboardViewController: BaseViewController {
     
     let imageView : UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: "onboarding")
+        imageView.image = UIImage(named: "MovieDrawer")
         imageView.contentMode = .scaleAspectFit
         imageView.clipsToBounds = true
         return imageView
@@ -58,8 +58,9 @@ final class OnboardViewController: BaseViewController {
     override func configureViewLayout() {
         
         imageView.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide)
-            $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
+            $0.size.equalTo(300)
+            $0.centerX.equalTo(view.safeAreaLayoutGuide)
+            $0.centerY.equalTo(view.safeAreaLayoutGuide).offset(-100)
         }
         
         var vertialCoordinateBase = imageView.snp.bottom
@@ -83,6 +84,11 @@ final class OnboardViewController: BaseViewController {
             $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(10)
             $0.height.equalTo(45)
         }
+    }
+    
+    override func configureViewDetails() {
+        view.backgroundColor = AppColor.mainBackground.inUIColorFormat
+        
     }
     
     override func viewDidLayoutSubviews() {

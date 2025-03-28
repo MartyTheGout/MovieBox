@@ -9,7 +9,7 @@ import UIKit
 
 final class MainTabBarController: UITabBarController {
     
-    let selectedColor = AppColor.mainInfoDeliver.inUIColorFormat
+    let selectedColor = AppColor.woodenConcept2.inUIColorFormat
     let unselectedColor = AppColor.subInfoDeliver.inUIColorFormat
     
     override func viewDidLoad() {
@@ -21,23 +21,25 @@ final class MainTabBarController: UITabBarController {
     }
     
     private func configureViewControllers() {
-        let mainViewController = MainViewController()
-        let mainVCSymbol = AppSFSymbol.popcorn.image.withTintColor(unselectedColor)
-        let mainVCSymbolSelected = AppSFSymbol.popcorn.image.withTintColor(selectedColor)
-        let mainNC = UINavigationController(rootViewController: mainViewController)
-        mainNC.tabBarItem = UITabBarItem(title: "CINEMA", image: mainVCSymbol, selectedImage: mainVCSymbolSelected)
+        tabBar.tintColor = selectedColor
         
-        let upcomingViewController = InPrepareViewController()
-        let upcommingVCSymbol = AppSFSymbol.film.image.withTintColor(unselectedColor)
-        let upcommingVCSymbolSelected = AppSFSymbol.film.image.withTintColor(selectedColor)
-        let upcommingNC = UINavigationController(rootViewController: upcomingViewController)
-        upcommingNC.tabBarItem = UITabBarItem(title: "UPCOMING", image: upcommingVCSymbol, selectedImage: upcommingVCSymbolSelected)
+        let mainViewController = MainViewController()
+        let mainVCSymbol = AppSFSymbol.film.image.withTintColor(unselectedColor)
+        let mainVCSymbolSelected = AppSFSymbol.film.image.withTintColor(selectedColor)
+        let mainNC = UINavigationController(rootViewController: mainViewController)
+        mainNC.tabBarItem = UITabBarItem(title: "", image: mainVCSymbol, selectedImage: mainVCSymbolSelected)
+        
+        let searchViewController = SearchViewController()
+        let upcommingVCSymbol = AppSFSymbol.magnifyingglass.image.withTintColor(unselectedColor)
+        let upcommingVCSymbolSelected = AppSFSymbol.magnifyingglass.image.withTintColor(selectedColor)
+        let upcommingNC = UINavigationController(rootViewController: searchViewController)
+        upcommingNC.tabBarItem = UITabBarItem(title: "", image: upcommingVCSymbol, selectedImage: upcommingVCSymbolSelected)
         
         let settingViewController = SettingViewController()
         let settingVCSymbol = AppSFSymbol.person.image.withTintColor(unselectedColor)
         let settingVCSymbolSelected = AppSFSymbol.person.image.withTintColor(selectedColor)
         let settingNC = UINavigationController(rootViewController: settingViewController)
-        settingNC.tabBarItem = UITabBarItem(title: "PROFILE", image: settingVCSymbol, selectedImage: settingVCSymbolSelected)
+        settingNC.tabBarItem = UITabBarItem(title: "", image: settingVCSymbol, selectedImage: settingVCSymbolSelected)
         
         setViewControllers([mainNC, upcommingNC, settingNC], animated: true)
     }

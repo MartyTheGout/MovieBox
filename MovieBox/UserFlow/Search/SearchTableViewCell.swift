@@ -52,7 +52,7 @@ final class SearchTableViewCell: BaseTableViewCell {
     var likeButton : UIButton = {
         let button = UIButton(type: .custom)
         button.setImage(AppSFSymbol.whiteHeart.image, for: .normal)
-        button.tintColor = AppColor.tintBlue.inUIColorFormat
+        button.tintColor = AppColor.tintBrown.inUIColorFormat
         return button
     }()
     
@@ -114,6 +114,15 @@ final class SearchTableViewCell: BaseTableViewCell {
         mainImage.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: AppColor.subBackground.inUIColorFormat), animation: animation, transition: .crossDissolve(1))
     }
 
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        mainImage.clipsToBounds = true
+        mainImage.layer.cornerRadius = 10
+        mainImage.layer.masksToBounds = true
+    }
+
+    
     override func draw(_ rect: CGRect) {
         super.draw(rect)
         mainImage.clipsToBounds = true
@@ -148,7 +157,7 @@ extension SearchTableViewCell {
             let keywordPart = originalText[keywordRange]
             let attributedString = NSAttributedString(string: String(keywordPart), attributes: [
                 .font : UIFont.systemFont(ofSize: 17, weight: .bold),
-                .foregroundColor : UIColor.yellow
+                .foregroundColor : AppColor.woodenConcept2.inUIColorFormat
             ])
             
             mutableString.append(attributedString)

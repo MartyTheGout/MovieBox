@@ -7,7 +7,7 @@
 
 import UIKit
 
-func getBlueBoldBorder<T:UIView>(view: T) -> Void {
-    view.layer.borderColor = AppColor.tintBlue.inUIColorFormat.cgColor
+func getBrownBoldBorder<T:UIView>(view: T) -> Void {
+    view.layer.borderColor = AppColor.tintBrown.inUIColorFormat.cgColor
     view.layer.borderWidth = AppLineDesign.selected.rawValue
 }

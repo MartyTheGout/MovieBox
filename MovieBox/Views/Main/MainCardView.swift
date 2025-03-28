@@ -18,7 +18,8 @@ class MainCardView: BaseView {
         imageView.contentMode = .scaleAspectFill
         imageView.backgroundColor = AppColor.mainBackground.inUIColorFormat
         imageView.clipsToBounds = true
-        getBlueBoldBorder(view: imageView) // TODO: check , check value capture
+        imageView.layer.borderColor = AppColor.woodenConcept2.inUIColorFormat.cgColor
+        imageView.layer.borderWidth = 2
         return imageView
     }()
     
@@ -33,7 +34,7 @@ class MainCardView: BaseView {
     var nickname = ApplicationUserData.nickname
     lazy var  nicknameLabel: UILabel = {
         let label = UILabel()
-        label.textColor = AppColor.subInfoDeliver.inUIColorFormat
+        label.textColor = AppColor.mainInfoDeliver.inUIColorFormat
         label.font = .systemFont(ofSize: 17, weight: .bold)
         label.textAlignment = .left
         label.text = nickname
@@ -43,7 +44,7 @@ class MainCardView: BaseView {
     var date = ApplicationUserData.registrationDate
     let dateLabel: UILabel = {
         let label = UILabel()
-        label.textColor = AppColor.subBackground.inUIColorFormat
+        label.textColor = AppColor.subInfoDeliver.inUIColorFormat
         label.font = .systemFont(ofSize: 12, weight: .bold)
         label.textAlignment = .left
         return label
@@ -52,26 +53,38 @@ class MainCardView: BaseView {
     let chevron: UIImageView = {
         let imageView = UIImageView()
         imageView.image = AppSFSymbol.chevronRight.image
-        imageView.tintColor = AppColor.subBackground.inUIColorFormat
+        imageView.tintColor = AppColor.subInfoDeliver.inUIColorFormat
         return imageView
     }()
     
     var likeCount = ApplicationUserData.likedIdArray.count
     lazy var likeInfoButton: UIButton = {
         let button = UIButton()
-        
-        let attributedString = NSAttributedString(
-            string: "\(likeCount)개의 무비박스 보관 중",
+
+        let textString = NSAttributedString(
+            string: "\(likeCount)개를 무비서랍에 보관 중",
             attributes: [
                 .foregroundColor: AppColor.mainInfoDeliver.inUIColorFormat,
                 .font: UIFont.systemFont(ofSize: 16, weight: .bold)
-            ])
-    
-        button.backgroundColor = AppColor.tintBlue.inUIColorFormat.withAlphaComponent(0.5)
-        button.setAttributedTitle(attributedString, for: .normal)
+            ]
+        )
+        button.setImage(UIImage(systemName: "tray.2.fill")?
+            .withTintColor(.white, renderingMode: .alwaysOriginal)
+                        , for: .normal)
+
+        button.setAttributedTitle(textString, for: .normal)
+        button.backgroundColor = AppColor.woodenConcept2.inUIColorFormat.withAlphaComponent(0.5)
+        button.layer.borderWidth = 3.0
+        button.layer.borderColor = AppColor.woodenConcept2.inUIColorFormat.cgColor
+        button.layer.cornerRadius = 8
         
+        button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: -8)
+
+        button.contentEdgeInsets = UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12)
+
         return button
     }()
+
     
     //MARK: View Controller Life Cycle
     override init(frame: CGRect) {
@@ -109,7 +122,7 @@ class MainCardView: BaseView {
     }
     
     override func configureViewDetails() {
-        backgroundColor = AppColor.cardBackground.inUIColorFormat
+        backgroundColor = AppColor.subBackground.inUIColorFormat
     }
     
     override func layoutSubviews() {

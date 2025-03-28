@@ -14,9 +14,9 @@ class NameTextFieldView: BaseView {
     let textField: UITextField = {
         let textField = UITextField()
         
-        textField.backgroundColor = AppColor.mainInfoDeliver.inUIColorFormat
-        textField.textColor = AppColor.mainBackground.inUIColorFormat
-        textField.tintColor = AppColor.mainBackground.inUIColorFormat
+        textField.backgroundColor = AppColor.mainBackground.inUIColorFormat
+        textField.textColor = AppColor.mainInfoDeliver.inUIColorFormat
+        textField.tintColor = AppColor.mainInfoDeliver.inUIColorFormat
         
         return textField
     }()

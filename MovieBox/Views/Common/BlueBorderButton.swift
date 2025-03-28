@@ -13,7 +13,7 @@ class BlueBorderButton: UIButton {
     override var isEnabled: Bool {
         didSet {
             super.isEnabled = isEnabled
-            self.layer.borderColor = isEnabled ? AppColor.tintBlue.inUIColorFormat.cgColor : AppColor.subBackground.inUIColorFormat.cgColor
+            self.layer.borderColor = isEnabled ? AppColor.tintBrown.inUIColorFormat.cgColor : AppColor.subBackground.inUIColorFormat.cgColor
             self.layer.borderWidth = AppLineDesign.selected.rawValue
         }
     }
@@ -32,7 +32,7 @@ class BlueBorderButton: UIButton {
         
         let attributedString = NSAttributedString(string: title, attributes: [
             .font : UIFont.systemFont(ofSize: 17, weight: .regular),
-            .foregroundColor : AppColor.tintBlue.inUIColorFormat
+            .foregroundColor : AppColor.tintBrown.inUIColorFormat
         ])
         self.setAttributedTitle(attributedString, for: .normal)
         
@@ -43,6 +43,6 @@ class BlueBorderButton: UIButton {
         
         self.setAttributedTitle(attributedStringForDisabled, for: .disabled)
         
-        getBlueBoldBorder(view: self)
+        getBrownBoldBorder(view: self)
     }
 }

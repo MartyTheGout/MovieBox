@@ -39,14 +39,14 @@ final class MainMovieCollectionCell: BaseCollectionViewCell {
     let titleLable: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 18, weight: .bold)
-        label.textColor = .white
+        label.textColor = AppColor.mainInfoDeliver.inUIColorFormat
         return label
     }()
     
     var likeButton : UIButton = {
         let button = UIButton(type: .custom)
         button.setImage(AppSFSymbol.whiteHeart.image, for: .normal)
-        button.tintColor = AppColor.tintBlue.inUIColorFormat
+        button.tintColor = AppColor.tintBrown.inUIColorFormat
         return button
     }()
     

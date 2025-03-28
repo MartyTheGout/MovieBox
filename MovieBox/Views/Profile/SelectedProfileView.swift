@@ -19,9 +19,11 @@ class SelectedProfileView: BaseView {
     
     lazy var button: UIButton = {
         let button = UIButton()
-        getBlueBoldBorder(view: button)
+        
         button.layer.masksToBounds = true
         button.isEnabled = self.isClickable
+        button.layer.borderColor = AppColor.woodenConcept2.inUIColorFormat.cgColor
+        button.layer.borderWidth = 3
         
         return button
     }()
@@ -29,8 +31,8 @@ class SelectedProfileView: BaseView {
     let subImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = AppSFSymbol.camera.image
-        imageView.backgroundColor = AppColor.tintBlue.inUIColorFormat
-        imageView.tintColor = AppColor.mainInfoDeliver.inUIColorFormat
+        imageView.backgroundColor = AppColor.woodenConcept2.inUIColorFormat
+        imageView.tintColor = .white
         
         imageView.contentMode = .scaleAspectFit
         imageView.clipsToBounds = true
