@@ -173,7 +173,7 @@
 				DEVELOPMENT_TEAM = BU56QU36XP;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MovieBox/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "박치형";
+				INFOPLIST_KEY_CFBundleDisplayName = "무비서랍";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -208,7 +208,7 @@
 				DEVELOPMENT_TEAM = BU56QU36XP;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MovieBox/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "박치형";
+				INFOPLIST_KEY_CFBundleDisplayName = "무비서랍";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
